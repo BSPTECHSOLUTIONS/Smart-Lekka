@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Smart Lekka – Supervisor User Manual</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1a1a2e; background: #f8fafc; font-size: 15px; line-height: 1.7; }
+  .page-wrap { max-width: 860px; margin: 0 auto; background: #fff; min-height: 100vh; }
+
+  /* Cover */
+  .cover { background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #2563eb 100%); color: #fff; padding: 60px 40px 50px; text-align: center; }
+  .cover .logo-wrap { margin-bottom: 24px; }
+  .cover .logo-wrap img { height: 90px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+  .cover h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+  .cover .role-badge { display: inline-block; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); border-radius: 30px; padding: 6px 20px; font-size: 14px; font-weight: 600; margin-bottom: 20px; letter-spacing: 0.5px; }
+  .cover p { font-size: 16px; opacity: 0.85; max-width: 480px; margin: 0 auto; }
+  .cover .meta { margin-top: 32px; font-size: 12px; opacity: 0.6; }
+
+  /* TOC */
+  .toc { padding: 32px 40px; background: #f0f4ff; border-bottom: 1px solid #e0e7ff; }
+  .toc h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #6366f1; margin-bottom: 16px; }
+  .toc ol { padding-left: 20px; }
+  .toc li { padding: 4px 0; font-size: 14px; }
+  .toc a { color: #1d4ed8; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Sections */
+  .section { padding: 40px 40px 32px; border-bottom: 1px solid #f1f5f9; }
+  .section-num { display: inline-block; background: #1d4ed8; color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; letter-spacing: 0.5px; }
+  .section h2 { font-size: 22px; font-weight: 800; color: #1e3a8a; margin-bottom: 8px; }
+  .section .lead { font-size: 15px; color: #475569; margin-bottom: 20px; }
+
+  h3 { font-size: 16px; font-weight: 700; color: #1e40af; margin: 24px 0 8px; }
+  h4 { font-size: 14px; font-weight: 700; color: #374151; margin: 16px 0 6px; }
+
+  p { margin-bottom: 12px; color: #374151; }
+
+  .steps { list-style: none; counter-reset: step; }
+  .steps li { counter-increment: step; display: flex; gap: 14px; margin-bottom: 14px; }
+  .steps li::before { content: counter(step); display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; min-width: 28px; background: #1d4ed8; color: #fff; border-radius: 50%; font-size: 13px; font-weight: 700; }
+  .steps li .step-body { flex: 1; padding-top: 4px; }
+  .steps li .step-body strong { display: block; font-size: 14px; color: #1e293b; }
+  .steps li .step-body span { font-size: 13px; color: #64748b; }
+
+  ul.bullets { list-style: disc; padding-left: 22px; }
+  ul.bullets li { margin-bottom: 8px; color: #374151; }
+
+  .tip { background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 6px; padding: 14px 18px; margin: 16px 0; font-size: 14px; color: #1e40af; }
+  .tip strong { display: block; margin-bottom: 4px; }
+  .warn { background: #fff7ed; border-left: 4px solid #f97316; border-radius: 6px; padding: 14px 18px; margin: 16px 0; font-size: 14px; color: #9a3412; }
+  .warn strong { display: block; margin-bottom: 4px; }
+
+  /* Screenshot */
+  .screen-wrap { margin: 20px 0; text-align: center; }
+  .screen-wrap img { max-width: 320px; width: 100%; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06); }
+  .screen-wrap .caption { margin-top: 10px; font-size: 12px; color: #94a3b8; font-style: italic; }
+
+  /* Feature blocks */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  .feature-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+  .feature-box .icon { font-size: 22px; margin-bottom: 8px; }
+  .feature-box h4 { margin: 0 0 6px; font-size: 14px; color: #1e293b; }
+  .feature-box p { font-size: 13px; color: #64748b; margin: 0; }
+
+  /* Screen mockup (inline) */
+  .mockup { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 16px 0; }
+  .mockup-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 12px; }
+  .mockup-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 8px; }
+  .mockup-row .label { font-size: 13px; font-weight: 600; color: #374151; }
+  .mockup-row .value { font-size: 13px; font-weight: 700; color: #1d4ed8; }
+  .mockup-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+  .badge-orange { background: #fff7ed; color: #c2410c; }
+  .badge-green { background: #f0fdf4; color: #166534; }
+  .badge-blue { background: #eff6ff; color: #1d4ed8; }
+
+  /* Navbar illustration */
+  .nav-bar { display: flex; gap: 6px; margin: 16px 0; background: #1e293b; border-radius: 12px; padding: 10px 16px; }
+  .nav-item { color: #94a3b8; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 6px; cursor: default; }
+  .nav-item.active { background: #1d4ed8; color: #fff; }
+
+  /* Footer */
+  .footer { padding: 30px 40px; background: #f0f4ff; text-align: center; }
+  .footer p { font-size: 12px; color: #6366f1; }
+
+  @media print {
+    .page-wrap { max-width: 100%; }
+    .section { break-inside: avoid; }
+  }
+  @media (max-width: 600px) {
+    .cover, .section, .toc { padding-left: 20px; padding-right: 20px; }
+    .feature-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="logo-wrap">
+      <img src="/smart-lekka-logo.png" alt="Smart Lekka" />
+    </div>
+    <h1>Smart Lekka</h1>
+    <div class="role-badge">🏗️ Supervisor Role — User Manual</div>
+    <p>Complete guide to managing JCB workers, work sessions, payments, and expenses as a Supervisor.</p>
+    <div class="meta">BSP Tech Solutions · Track Work. Settle Easy.</div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#login">Logging In</a></li>
+      <li><a href="#dashboard">Dashboard Overview</a></li>
+      <li><a href="#jcb-filter">Filtering by JCB Machine</a></li>
+      <li><a href="#workers">Worker Payment Cards</a></li>
+      <li><a href="#pay-worker">Recording a Payment</a></li>
+      <li><a href="#history">History Page</a></li>
+      <li><a href="#expenses">Expenses Page</a></li>
+      <li><a href="#reports">Downloading PDF Reports</a></li>
+      <li><a href="#nav">Navigation Guide</a></li>
+    </ol>
+  </div>
+
+  <!-- SECTION 1: Login -->
+  <div class="section" id="login">
+    <div class="section-num">SECTION 1</div>
+    <h2>Logging In</h2>
+    <p class="lead">Use your mobile number and password provided by your admin to sign in as a Supervisor.</p>
+
+    <div class="screen-wrap">
+      <img src="/manual-login.jpg" alt="Login Screen" />
+      <div class="caption">Smart Lekka Login Screen</div>
+    </div>
+
+    <h3>Steps to Log In</h3>
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <strong>Open the Smart Lekka app</strong>
+          <span>Go to the app URL in your phone's browser. The login screen appears automatically.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Enter your Mobile Number</strong>
+          <span>Type your 10-digit mobile number in the "JCB Number / Mobile" field.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Enter your Password</strong>
+          <span>Type the password given to you by the admin.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Tap Sign In</strong>
+          <span>You will be taken to the Dashboard.</span>
+        </div>
+      </li>
+    </ol>
+
+    <div class="tip">
+      <strong>💡 Supervisor Credentials Format</strong>
+      Your mobile number is your login ID. If you forget your password, ask your Admin to reset it from the Admin panel.
+    </div>
+  </div>
+
+  <!-- SECTION 2: Dashboard -->
+  <div class="section" id="dashboard">
+    <div class="section-num">SECTION 2</div>
+    <h2>Dashboard Overview</h2>
+    <p class="lead">The Dashboard is your main overview. It shows a summary of all workers under your client, their earnings, payments made, and pending balances.</p>
+
+    <h3>Summary Cards</h3>
+    <p>At the top of the Dashboard you will see four summary cards:</p>
+
+    <div class="mockup">
+      <div class="mockup-title">Dashboard Summary Cards</div>
+      <div class="mockup-row"><span class="label">👷 Workers</span><span class="value">4</span></div>
+      <div class="mockup-row"><span class="label">📈 Total Earned</span><span class="value">₹48,000</span></div>
+      <div class="mockup-row"><span class="label">💼 Total Paid</span><span class="value">₹30,000</span></div>
+      <div class="mockup-row"><span class="label">⏳ Pending</span><span class="value badge-orange">₹18,000</span></div>
+    </div>
+
+    <ul class="bullets">
+      <li><strong>Workers</strong> — Total number of workers active in your client.</li>
+      <li><strong>Total Earned</strong> — Total amount earned across all work sessions.</li>
+      <li><strong>Total Paid</strong> — Total amount already paid to workers.</li>
+      <li><strong>Pending</strong> — Amount still owed to workers.</li>
+    </ul>
+
+    <h3>Payment Progress Bar</h3>
+    <p>Below the cards, a progress bar shows what percentage of earnings have been paid. For example, "62% paid" means 62% of total earned has been paid out.</p>
+
+    <h3>Pending Workers List</h3>
+    <p>Below the progress bar you will see cards for each worker who still has a pending balance. Each card shows:</p>
+    <ul class="bullets">
+      <li>Worker's name and initials</li>
+      <li>Total earned, total paid, and pending amount</li>
+      <li>A <strong>Pay</strong> button to record a payment</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 3: JCB Filter -->
+  <div class="section" id="jcb-filter">
+    <div class="section-num">SECTION 3</div>
+    <h2>Filtering by JCB Machine</h2>
+    <p class="lead">As a Supervisor, you oversee multiple JCB machines. Use the JCB filter to view data for one specific JCB at a time.</p>
+
+    <h3>Where to Find the Filter</h3>
+    <p>Just below the Dashboard title, you will see a blue filter bar with a dropdown:</p>
+
+    <div class="mockup">
+      <div class="mockup-title">JCB Filter Bar (appears for Supervisors only)</div>
+      <div class="mockup-row" style="background:#eff6ff; border-color:#bfdbfe;">
+        <span style="color:#1d4ed8; font-size:13px;">▼ Filter</span>
+        <span class="label" style="flex:1; padding-left:12px;">All JCBs</span>
+        <span style="font-size:11px; color:#94a3b8;">▾</span>
+      </div>
+    </div>
+
+    <h3>How to Filter</h3>
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <strong>Tap the filter dropdown</strong>
+          <span>It shows "All JCBs" by default — this shows data from all machines combined.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Select a JCB machine</strong>
+          <span>Choose a specific JCB (e.g. "JCB-001") from the list. The worker list and summary will update to show only work done by that JCB.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Switch back to All JCBs</strong>
+          <span>Select "All JCBs" to return to the combined view.</span>
+        </div>
+      </li>
+    </ol>
+
+    <div class="tip">
+      <strong>💡 The same JCB filter is available on the Expenses page and the History page.</strong>
+      Each page has its own independent filter so you can compare across pages.
+    </div>
+  </div>
+
+  <!-- SECTION 4: Workers -->
+  <div class="section" id="workers">
+    <div class="section-num">SECTION 4</div>
+    <h2>Worker Payment Cards</h2>
+    <p class="lead">Each worker with a pending balance appears as a card on the Dashboard. Fully paid workers are hidden from the home screen (you can view them on the History page).</p>
+
+    <h3>Reading a Worker Card</h3>
+    <div class="mockup">
+      <div class="mockup-title">Example Worker Card</div>
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:36px;height:36px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1d4ed8;font-size:13px;">RK</div>
+            <div>
+              <div style="font-weight:700; font-size:14px;">Rajesh Kumar</div>
+              <div style="font-size:11px; color:#94a3b8;">Worker</div>
+            </div>
+          </div>
+          <span class="mockup-badge badge-orange">₹6,000 pending</span>
+        </div>
+        <div style="display:flex; gap:16px; font-size:12px; color:#64748b;">
+          <div>Earned: <strong style="color:#166534;">₹18,000</strong></div>
+          <div>Paid: <strong style="color:#1d4ed8;">₹12,000</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="bullets">
+      <li><strong>Initials circle</strong> — First letters of the worker's name.</li>
+      <li><strong>Pending badge</strong> — Amount still owed in orange.</li>
+      <li><strong>Earned / Paid</strong> — Lifetime totals for this worker.</li>
+    </ul>
+
+    <h3>Viewing Worker Detail</h3>
+    <p>Tap the worker card (or the arrow icon) to open the full detail page. There you can see all individual work sessions and every payment made for that worker.</p>
+  </div>
+
+  <!-- SECTION 5: Pay Worker -->
+  <div class="section" id="pay-worker">
+    <div class="section-num">SECTION 5</div>
+    <h2>Recording a Payment</h2>
+    <p class="lead">When you pay a worker, record it in Smart Lekka so the pending balance stays accurate.</p>
+
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <strong>Find the worker on the Dashboard</strong>
+          <span>Scroll through the pending workers list.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Tap the "Pay" button</strong>
+          <span>A payment dialog opens showing the worker's current pending amount.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Enter the amount paid</strong>
+          <span>Type the exact amount you are paying today (can be partial or full).</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Tap "Record Payment"</strong>
+          <span>The pending balance updates immediately. If fully paid, the worker moves off the home screen.</span>
+        </div>
+      </li>
+    </ol>
+
+    <div class="tip">
+      <strong>💡 Partial Payments are OK</strong>
+      You can record multiple partial payments over time. Each payment is logged with a date so there is a full audit trail.
+    </div>
+    <div class="warn">
+      <strong>⚠️ Cannot Undo Payments</strong>
+      Once a payment is recorded it is permanent. Double-check the amount before saving.
+    </div>
+  </div>
+
+  <!-- SECTION 6: History -->
+  <div class="section" id="history">
+    <div class="section-num">SECTION 6</div>
+    <h2>History Page</h2>
+    <p class="lead">The History page shows all workers — both pending and fully paid — along with every work session and payment in detail.</p>
+
+    <h3>Filters Available</h3>
+    <div class="feature-grid">
+      <div class="feature-box">
+        <div class="icon">🏗️</div>
+        <h4>JCB Filter</h4>
+        <p>Show sessions from a specific JCB machine only. Same blue filter bar as the Dashboard.</p>
+      </div>
+      <div class="feature-box">
+        <div class="icon">👷</div>
+        <h4>Worker Filter</h4>
+        <p>Choose a specific worker from the dropdown to focus on their history only.</p>
+      </div>
+      <div class="feature-box">
+        <div class="icon">⏳</div>
+        <h4>Status: Pending</h4>
+        <p>Show only workers who still have a balance to be paid.</p>
+      </div>
+      <div class="feature-box">
+        <div class="icon">✅</div>
+        <h4>Status: Settled</h4>
+        <p>Show only workers who have been fully paid.</p>
+      </div>
+    </div>
+
+    <h3>Reading a Worker's History</h3>
+    <p>Each worker appears as an expandable section showing:</p>
+    <ul class="bullets">
+      <li><strong>Work Sessions</strong> — Date, field name, hours worked, and amount earned per session.</li>
+      <li><strong>Payments</strong> — Date and amount of each payment made.</li>
+      <li><strong>Totals</strong> — Running summary of earned, paid, and pending.</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 7: Expenses -->
+  <div class="section" id="expenses">
+    <div class="section-num">SECTION 7</div>
+    <h2>Expenses Page</h2>
+    <p class="lead">Track all JCB-related expenses such as fuel, maintenance, salaries, materials, and other costs.</p>
+
+    <h3>JCB Filter on Expenses</h3>
+    <p>As a Supervisor, you see expenses from all JCB machines in your client by default. Use the blue JCB filter bar to narrow down to a specific machine.</p>
+
+    <h3>Date Range Filter</h3>
+    <p>Set a <strong>From</strong> and <strong>To</strong> date to see expenses within a specific period. Tap "Show All Time" to remove the date filter.</p>
+
+    <h3>Expense Categories</h3>
+    <div class="feature-grid">
+      <div class="feature-box">
+        <div class="icon">⛽</div>
+        <h4>Fuel</h4>
+        <p>Diesel and other fuel costs for the JCB.</p>
+      </div>
+      <div class="feature-box">
+        <div class="icon">🔧</div>
+        <h4>Maintenance</h4>
+        <p>Repair and service costs.</p>
+      </div>
+      <div class="feature-box">
+        <div class="icon">👷</div>
+        <h4>Salary</h4>
+        <p>Operator salary expenses.</p>
+      </div>
+      <div class="feature-box">
+        <div class="icon">📦</div>
+        <h4>Materials</h4>
+        <p>Parts, consumables, and supplies.</p>
+      </div>
+    </div>
+
+    <h3>Expense Summary</h3>
+    <p>At the top of the Expenses page you will see three totals:</p>
+    <ul class="bullets">
+      <li><strong>Total</strong> — Sum of all expenses in the selected period.</li>
+      <li><strong>Paid</strong> — Amount of expenses already settled.</li>
+      <li><strong>Pending</strong> — Expenses not yet paid.</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 8: PDF Reports -->
+  <div class="section" id="reports">
+    <div class="section-num">SECTION 8</div>
+    <h2>Downloading PDF Reports</h2>
+    <p class="lead">Generate a professional PDF report from the Dashboard for any time period, for all or selected workers, filtered by JCB if needed.</p>
+
+    <ol class="steps">
+      <li>
+        <div class="step-body">
+          <strong>Go to the Dashboard</strong>
+          <span>Make sure the JCB filter is set to the machine you want (or "All JCBs").</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Tap the "Download Report" button</strong>
+          <span>It appears in the top-right of the Dashboard. If there are no workers it will not appear.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Choose Workers</strong>
+          <span>Select "All Workers" or pick a specific worker from the dropdown.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Choose a Date Period</strong>
+          <span>Options: All Time, This Month, Last Month, or a Custom date range.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Review the Summary</strong>
+          <span>The "Report will include" section shows exactly what will be in the PDF. If a JCB filter is active, it shows the JCB name in blue.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <strong>Tap "Generate PDF"</strong>
+          <span>The PDF downloads to your device automatically.</span>
+        </div>
+      </li>
+    </ol>
+
+    <div class="tip">
+      <strong>💡 What's in the PDF?</strong>
+      The PDF includes: a summary table (earned, paid, pending per worker), all individual work sessions with dates and hours, and all payment records.
+    </div>
+  </div>
+
+  <!-- SECTION 9: Navigation -->
+  <div class="section" id="nav">
+    <div class="section-num">SECTION 9</div>
+    <h2>Navigation Guide</h2>
+    <p class="lead">The app has a bottom navigation bar (on mobile) with the following pages:</p>
+
+    <div class="nav-bar">
+      <div class="nav-item active">🏠 Home</div>
+      <div class="nav-item">⏱ Track</div>
+      <div class="nav-item">📋 History</div>
+      <div class="nav-item">💰 Expenses</div>
+    </div>
+
+    <ul class="bullets">
+      <li><strong>Home (Dashboard)</strong> — Overview summary + pending workers + JCB filter.</li>
+      <li><strong>Track</strong> — Start a live timer session or add a manual work entry for any worker.</li>
+      <li><strong>History</strong> — Full session and payment history with JCB and worker filters.</li>
+      <li><strong>Expenses</strong> — All expenses with JCB filter and date range.</li>
+    </ul>
+
+    <div class="tip">
+      <strong>💡 As a Supervisor you do NOT have access to the Admin panel.</strong>
+      Admin-only features (creating clients, managing all users) are handled by the system administrator.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p><strong>Smart Lekka</strong> · Supervisor Manual · BSP Tech Solutions · Support: Support@BSPTechSolutions.com</p>
+  </div>
+
+</div>
+</body>
+</html>

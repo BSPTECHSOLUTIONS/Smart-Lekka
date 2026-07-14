@@ -1,0 +1,731 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification for Tractor Work Tracker
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User management
+  - name: workers
+    description: Worker management
+  - name: work-logs
+    description: Work log tracking
+  - name: payments
+    description: Payment management
+  - name: settings
+    description: App settings
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with mobile + password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user info
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users (admin only)
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create a new user (admin only)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserBody"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/{id}:
+    put:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user password (admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete a user (admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted successfully
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /workers:
+    get:
+      operationId: listWorkers
+      tags: [workers]
+      summary: List all workers with payment summary
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of workers with summary
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkerSummary"
+    post:
+      operationId: createWorker
+      tags: [workers]
+      summary: Create a new worker
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkerBody"
+      responses:
+        "201":
+          description: Worker created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Worker"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Mobile number already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerConflictResponse"
+
+  /workers/{id}:
+    get:
+      operationId: getWorker
+      tags: [workers]
+      summary: Get single worker details
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Worker detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerSummary"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /workers/{id}/logs:
+    get:
+      operationId: getWorkerLogs
+      tags: [workers]
+      summary: Get work logs for a worker
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Work logs for worker
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WorkLog"
+
+  /workers/{id}/payments:
+    get:
+      operationId: getWorkerPayments
+      tags: [workers]
+      summary: Get payment history for a worker
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payment history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+
+  /work-logs:
+    post:
+      operationId: createWorkLog
+      tags: [work-logs]
+      summary: Save a completed work session
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkLogBody"
+      responses:
+        "201":
+          description: Work log created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkLog"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /work-logs/active:
+    get:
+      operationId: getActiveWorkLog
+      tags: [work-logs]
+      summary: Get active (in-progress) work session if any
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Active work session or null
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActiveWorkLog"
+
+  /payments:
+    post:
+      operationId: createPayment
+      tags: [payments]
+      summary: Add a payment for a worker
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePaymentBody"
+      responses:
+        "201":
+          description: Payment recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /settings/rate:
+    get:
+      operationId: getRate
+      tags: [settings]
+      summary: Get current amount per hour
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current rate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateSetting"
+    post:
+      operationId: setRate
+      tags: [settings]
+      summary: Set amount per hour
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetRateBody"
+      responses:
+        "200":
+          description: Rate updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateSetting"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [settings]
+      summary: Get overall dashboard summary totals
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    LoginBody:
+      type: object
+      properties:
+        mobile:
+          type: string
+        password:
+          type: string
+      required:
+        - mobile
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - token
+        - user
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        mobile:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - mobile
+        - role
+        - createdAt
+
+    CreateUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+        mobile:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+      required:
+        - name
+        - mobile
+        - password
+        - role
+
+    UpdateUserBody:
+      type: object
+      properties:
+        password:
+          type: string
+        name:
+          type: ["string", "null"]
+      required:
+        - password
+
+    Worker:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        mobile:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - createdAt
+
+    WorkerSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        mobile:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        totalEarned:
+          type: number
+        totalPaid:
+          type: number
+        pendingAmount:
+          type: number
+      required:
+        - id
+        - name
+        - createdAt
+        - totalEarned
+        - totalPaid
+        - pendingAmount
+
+    CreateWorkerBody:
+      type: object
+      properties:
+        name:
+          type: string
+        mobile:
+          type: string
+      required:
+        - name
+        - mobile
+
+    WorkerConflictResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        existingWorker:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            mobile:
+              type: string
+          required:
+            - id
+            - name
+      required:
+        - error
+        - existingWorker
+
+    WorkLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        workerId:
+          type: integer
+        workerName:
+          type: ["string", "null"]
+        fieldName:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        totalHours:
+          type: number
+        amount:
+          type: number
+        paidAmount:
+          type: number
+        status:
+          type: string
+          enum: [PENDING, PARTIAL, PAID]
+        jcbUserId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - workerId
+        - fieldName
+        - startTime
+        - endTime
+        - totalHours
+        - amount
+        - paidAmount
+        - status
+        - createdAt
+
+    CreateWorkLogBody:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        fieldName:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        totalHours:
+          type: number
+        amount:
+          type: number
+      required:
+        - workerId
+        - fieldName
+        - startTime
+        - endTime
+        - totalHours
+        - amount
+
+    ActiveWorkLog:
+      type: object
+      properties:
+        active:
+          type: boolean
+        workerId:
+          type: ["integer", "null"]
+        workerName:
+          type: ["string", "null"]
+        fieldName:
+          type: ["string", "null"]
+        startTime:
+          type: ["string", "null"]
+      required:
+        - active
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        workerId:
+          type: integer
+        amountPaid:
+          type: number
+        paymentDate:
+          type: string
+      required:
+        - id
+        - workerId
+        - amountPaid
+        - paymentDate
+
+    CreatePaymentBody:
+      type: object
+      properties:
+        workerId:
+          type: integer
+        amountPaid:
+          type: number
+        jcbUserId:
+          type: integer
+          nullable: true
+      required:
+        - workerId
+        - amountPaid
+
+    RateSetting:
+      type: object
+      properties:
+        amountPerHour:
+          type: number
+      required:
+        - amountPerHour
+
+    SetRateBody:
+      type: object
+      properties:
+        amountPerHour:
+          type: number
+      required:
+        - amountPerHour
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalWorkers:
+          type: integer
+        totalEarned:
+          type: number
+        totalPaid:
+          type: number
+        totalPending:
+          type: number
+        amountPerHour:
+          type: number
+      required:
+        - totalWorkers
+        - totalEarned
+        - totalPaid
+        - totalPending
+        - amountPerHour
