@@ -197,8 +197,8 @@ export async function generateDashboardPDF(
   const filterParts: string[] = [];
   filterParts.push(
     filters.workerIds === "all"
-      ? "Workers: All"
-      : `Workers: ${selectedWorkers.map((w) => w.name).join(", ")}`
+      ? "Customers: All"
+      : `Customers: ${selectedWorkers.map((w) => w.name).join(", ")}`
   );
   if (filters.fromDate && filters.toDate) {
     filterParts.push(
@@ -212,7 +212,7 @@ export async function generateDashboardPDF(
     filterParts.push("Period: All Time");
   }
   if (filters.jcbUserId && filters.jcbName) {
-    filterParts.push(`JCB: ${filters.jcbName}`);
+    filterParts.push(`Vehicle: ${filters.jcbName}`);
   }
   doc.text(filterParts.join("   |   "), margin, y);
   y += 7;
@@ -225,7 +225,7 @@ export async function generateDashboardPDF(
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(...accentMid);
-  doc.text("Worker Summary", margin, y);
+  doc.text("Customer Summary", margin, y);
   y += 5;
 
   const workerRows = selectedWorkers.map((w) => {
@@ -249,7 +249,7 @@ export async function generateDashboardPDF(
   const wsColAlign: Array<"left" | "center" | "right"> = ["left", "right", "right", "right"];
   autoTable(doc, {
     startY: y,
-    head: [["Worker Name", "Total Earned", "Total Paid", "Pending Balance"]],
+    head: [["Customer Name", "Total Earned", "Total Paid", "Pending Balance"]],
     body: [
       ...workerRows,
       ["TOTAL", rupee(workerTotalEarned), rupee(workerTotalPaid), rupee(Math.max(0, workerTotalPending))],
@@ -309,7 +309,7 @@ export async function generateDashboardPDF(
   const wkColAlign: Array<"left" | "center" | "right"> = ["left", "left", "center", "center", "center", "right", "right"];
   autoTable(doc, {
     startY: y,
-    head: [["Worker", "Field", "Date", "Start", "End", "Hours", "Amount"]],
+    head: [["Customer", "Field", "Date", "Start", "End", "Hours", "Amount"]],
     body:
       logRows.length > 0
         ? [
@@ -371,7 +371,7 @@ export async function generateDashboardPDF(
   const phColAlign: Array<"left" | "center" | "right"> = ["left", "center", "center", "right"];
   autoTable(doc, {
     startY: y,
-    head: [["Worker", "Payment Date", "Time", "Amount Paid"]],
+    head: [["Customer", "Payment Date", "Time", "Amount Paid"]],
     body:
       paymentRows.length > 0
         ? [

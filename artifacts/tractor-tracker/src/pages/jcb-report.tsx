@@ -362,15 +362,15 @@ export default function JcbReportPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
             <BarChart3 className="w-7 h-7 text-primary" />
-            JCB Report
+            Vehicle Report
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Daily financial & operational summary per JCB</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Daily financial & operational summary per Vehicle</p>
         </div>
       </div>
 
       {/* JCB Cards — today's overview */}
       <section>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Today's JCB Overview</h2>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Today's Vehicle Overview</h2>
         {loadingCards ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {[...Array(2)].map((_, i) => (
@@ -392,7 +392,7 @@ export default function JcbReportPage() {
           <Card className="border border-dashed">
             <CardContent className="py-10 text-center">
               <Tractor className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
-              <p className="text-muted-foreground text-sm">No JCB users found</p>
+              <p className="text-muted-foreground text-sm">No Vehicle users found</p>
             </CardContent>
           </Card>
         ) : (
@@ -432,13 +432,13 @@ export default function JcbReportPage() {
             </div>
             {jcbUsers.length > 1 && (
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">JCB</Label>
+                <Label className="text-xs text-muted-foreground">Vehicle</Label>
                 <Select value={selectedJcb} onValueChange={setSelectedJcb}>
                   <SelectTrigger className="h-9 w-[160px] text-sm">
-                    <SelectValue placeholder="All JCBs" />
+                    <SelectValue placeholder="All Vehicles" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All JCBs</SelectItem>
+                    <SelectItem value="all">All Vehicles</SelectItem>
                     {jcbUsers.map((u) => (
                       <SelectItem key={u.id} value={String(u.id)}>{u.mobile}</SelectItem>
                     ))}
@@ -457,7 +457,7 @@ export default function JcbReportPage() {
         ) : summary ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
             <SummaryCard label="Amount Received" value={`₹${fmt(summary.amountReceived)}`} icon={Banknote} accent="emerald" sub="From customers" />
-            <SummaryCard label="Expenses Paid" value={`₹${fmt(summary.expensesPaid)}`} icon={Receipt} accent="rose" sub="JCB expenses" />
+            <SummaryCard label="Expenses Paid" value={`₹${fmt(summary.expensesPaid)}`} icon={Receipt} accent="rose" sub="Vehicle expenses" />
             <SummaryCard label="Net to Collect" value={`₹${fmt(summary.netAmount)}`} icon={TrendingUp} accent="blue" sub="Received − Expenses" />
             <SummaryCard label="Hours Worked" value={fmtHours(summary.totalHours)} icon={Clock} accent="violet" sub="Total tracked" />
             <SummaryCard label="Sites Worked" value={String(summary.sitesCount)} icon={MapPin} accent="amber" sub={`on ${format(new Date(selectedDate + "T00:00:00"), "dd MMM")}`} />

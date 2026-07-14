@@ -288,13 +288,13 @@ function UserManagementTab() {
           }),
         });
         if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
-        toast({ title: "JCB user added" });
+        toast({ title: "Vehicle user added" });
       } else if (modal === "edit-jcb" && editTarget) {
         const body: any = { name: fName, mobile: fMobile };
         if (fPassword) body.password = fPassword;
         const res = await fetch(`/api/users/${editTarget.id}`, { method: "PUT", headers, body: JSON.stringify(body) });
         if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
-        toast({ title: "JCB user updated" });
+        toast({ title: "Vehicle user updated" });
       }
       await reload();
       closeModal();
@@ -373,7 +373,7 @@ function UserManagementTab() {
                       <TableRow className="bg-blue-50">
                         <TableHead className="text-blue-700">Name</TableHead>
                         <TableHead className="text-blue-700">Mobile</TableHead>
-                        <TableHead className="text-blue-700">JCBs</TableHead>
+                        <TableHead className="text-blue-700">Vehicles</TableHead>
                         <TableHead className="text-blue-700 text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -394,7 +394,7 @@ function UserManagementTab() {
                             <TableCell className="text-slate-500">{sup.mobile}</TableCell>
                             <TableCell>
                               <Badge variant="outline" className="text-blue-600 border-blue-200">
-                                {jcbCount} {jcbCount === 1 ? "JCB" : "JCBs"}
+                                {jcbCount} {jcbCount === 1 ? "Vehicle" : "Vehicles"}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right" onClick={e => e.stopPropagation()}>
@@ -414,7 +414,7 @@ function UserManagementTab() {
                                       Delete Supervisor "{sup.name}"?
                                     </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      This will permanently delete this supervisor. Their JCB users will become unassigned.
+                                      This will permanently delete this supervisor. Their Vehicle users will become unassigned.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
@@ -442,7 +442,7 @@ function UserManagementTab() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base flex items-center gap-2 text-amber-700">
                   <Tractor className="w-4 h-4" />
-                  Step 3: JCB Users
+                  Step 3: Vehicle Users
                   {selectedSupervisor ? (
                     <span className="text-sm font-normal text-slate-500">
                       — under <span className="font-semibold text-amber-700">{selectedSupervisor.name}</span>
@@ -456,7 +456,7 @@ function UserManagementTab() {
                 </CardTitle>
                 {selectedSupervisor && (
                   <Button size="sm" onClick={() => openModal("add-jcb")} className="bg-amber-600 hover:bg-amber-700">
-                    <Plus className="w-4 h-4 mr-1" /> Add JCB
+                    <Plus className="w-4 h-4 mr-1" /> Add Vehicle
                   </Button>
                 )}
               </div>
@@ -465,14 +465,14 @@ function UserManagementTab() {
               {!selectedSupervisor ? (
                 <div className="text-center py-10 text-slate-400">
                   <Tractor className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  Click a supervisor above to see their JCB users.
+                  Click a supervisor above to see their Vehicle users.
                 </div>
               ) : jcbsForSupervisor.length === 0 ? (
                 <div className="text-center py-10 text-slate-400">
-                  No JCB users under {selectedSupervisor.name} yet.
+                  No Vehicle users under {selectedSupervisor.name} yet.
                   <br />
                   <Button variant="link" className="text-amber-600" onClick={() => openModal("add-jcb")}>
-                    Add the first JCB user
+                    Add the first Vehicle user
                   </Button>
                 </div>
               ) : (
@@ -480,7 +480,7 @@ function UserManagementTab() {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-amber-50">
-                        <TableHead className="text-amber-700">JCB Number</TableHead>
+                        <TableHead className="text-amber-700">Vehicle Number</TableHead>
                         <TableHead className="text-amber-700">Operator Name</TableHead>
                         <TableHead className="text-amber-700">Mobile</TableHead>
                         <TableHead className="text-amber-700">Status</TableHead>
@@ -512,9 +512,9 @@ function UserManagementTab() {
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete JCB "{jcb.mobile}"?</AlertDialogTitle>
+                                  <AlertDialogTitle>Delete Vehicle "{jcb.mobile}"?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This will permanently delete this JCB user and all their work records.
+                                    This will permanently delete this Vehicle user and all their work records.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
@@ -580,13 +580,13 @@ function UserManagementTab() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Tractor className="w-5 h-5 text-amber-500" />
-              {modal === "add-jcb" ? `Add JCB under ${selectedSupervisor?.name}` : "Edit JCB User"}
+              {modal === "add-jcb" ? `Add Vehicle under ${selectedSupervisor?.name}` : "Edit Vehicle User"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>JCB Number / Mobile (Login ID)</Label>
-              <Input value={fMobile} onChange={e => setFMobile(e.target.value)} placeholder="e.g. JCB001 or 9876543210" />
+              <Label>Vehicle Number / Mobile (Login ID)</Label>
+              <Input value={fMobile} onChange={e => setFMobile(e.target.value)} placeholder="e.g. VEH001 or 9876543210" />
             </div>
             <div>
               <Label>Operator Name</Label>
@@ -605,7 +605,7 @@ function UserManagementTab() {
           <DialogFooter>
             <Button variant="outline" onClick={closeModal}>Cancel</Button>
             <Button onClick={handleSaveJcb} disabled={!fName || !fMobile || saving} className="bg-amber-600 hover:bg-amber-700">
-              {saving ? "Saving…" : modal === "add-jcb" ? "Add JCB" : "Save Changes"}
+              {saving ? "Saving…" : modal === "add-jcb" ? "Add Vehicle" : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -629,7 +629,7 @@ export default function AdminPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-800">Admin Panel</h1>
-            <p className="text-sm text-slate-500">Manage clients, supervisors and JCB machines</p>
+            <p className="text-sm text-slate-500">Manage clients, supervisors and vehicles</p>
           </div>
         </div>
 

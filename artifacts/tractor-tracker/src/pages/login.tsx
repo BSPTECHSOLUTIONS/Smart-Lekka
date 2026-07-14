@@ -15,7 +15,7 @@ import { Loader2, Lock, Smartphone, Tractor, BarChart3, Shield } from "lucide-re
 import logoUrl from "/smart-lekka-logo.png";
 
 const loginSchema = z.object({
-  mobile: z.string().min(1, "JCB Number / Mobile is required"),
+  mobile: z.string().min(1, "Vehicle Number / Mobile is required"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -42,7 +42,7 @@ function TermsDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
             </div>
             <div>
               <p className="font-medium text-foreground mb-1">3. Account Responsibility</p>
-              <p>You are responsible for maintaining the confidentiality of your JCB Number and password. Any activity under your account is your responsibility.</p>
+              <p>You are responsible for maintaining the confidentiality of your Vehicle Number and password. Any activity under your account is your responsibility.</p>
             </div>
             <div>
               <p className="font-medium text-foreground mb-1">4. Data Accuracy</p>
@@ -54,7 +54,7 @@ function TermsDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
             </div>
             <div>
               <p className="font-medium text-foreground mb-1">6. Role-Based Access</p>
-              <p>Access to data and features is governed by your assigned role (Admin, Supervisor, or JCB User). You must not attempt to access features beyond your assigned permissions.</p>
+              <p>Access to data and features is governed by your assigned role (Admin, Supervisor, or Vehicle User). You must not attempt to access features beyond your assigned permissions.</p>
             </div>
             <div>
               <p className="font-medium text-foreground mb-1">7. Intellectual Property</p>
@@ -74,9 +74,9 @@ function TermsDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
 }
 
 const features = [
-  { icon: Tractor, label: "Track JCB Work Sessions", desc: "Live timer & manual entry" },
-  { icon: BarChart3, label: "Daily Settlement Reports", desc: "Per-JCB financial summaries" },
-  { icon: Shield, label: "Role-Based Access", desc: "Supervisor, JCB & Admin roles" },
+  { icon: Tractor, label: "Track Vehicle Work Sessions", desc: "Live timer & manual entry" },
+  { icon: BarChart3, label: "Daily Settlement Reports", desc: "Per-Vehicle financial summaries" },
+  { icon: Shield, label: "Role-Based Access", desc: "Supervisor, Vehicle & Admin roles" },
 ];
 
 export default function Login() {
@@ -99,7 +99,7 @@ export default function Login() {
       onError: (error) => {
         toast({
           title: "Login failed",
-          description: (error as any).data?.error || "Invalid JCB number / mobile or password",
+          description: (error as any).data?.error || "Invalid vehicle number / mobile or password",
           variant: "destructive",
         });
       },
@@ -131,7 +131,7 @@ export default function Login() {
               Track Work.<br />Settle Easy.
             </h1>
             <p className="text-sidebar-foreground/50 mt-3 text-sm leading-relaxed">
-              Complete JCB work & payment management for agricultural operations — from field tracking to daily settlements.
+              Complete Vehicle work & payment management for agricultural operations — from field tracking to daily settlements.
             </p>
           </div>
 
@@ -177,12 +177,12 @@ export default function Login() {
                 name="mobile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-medium">JCB Number / Mobile</FormLabel>
+                    <FormLabel className="text-sm font-medium">Vehicle Number / Mobile</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
-                          placeholder="Enter JCB number or mobile"
+                          placeholder="Enter vehicle number or mobile"
                           className="pl-10 h-11"
                           {...field}
                         />

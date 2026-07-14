@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { generateDashboardPDF, type ReportFilters } from "@/lib/generate-pdf";
+import type { ReportFilters } from "@/lib/generate-pdf";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { PieChart, Pie, Cell, Tooltip as ReTooltip, ResponsiveContainer } from "recharts";
 
@@ -163,7 +163,7 @@ function PaymentDialog({ workerId, workerName, pendingAmount }: { workerId: numb
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Record Payment</DialogTitle>
-          <CardDescription>Worker: {workerName}</CardDescription>
+          <CardDescription>Customer: {workerName}</CardDescription>
         </DialogHeader>
         <div className="py-4 space-y-4">
           {pendingAmount > 0 && (
@@ -248,6 +248,9 @@ function DownloadReportDialog({ workers, jcbUserId, jcbName, ratePerHour }: {
         clientName,
         ratePerHour: ratePerHour ?? null,
       };
+      // Loaded on demand: jsPDF/html2canvas are heavy and most users never
+      // download a report, so keep them out of the main dashboard bundle.
+      const { generateDashboardPDF } = await import("@/lib/generate-pdf");
       await generateDashboardPDF(workers, filters, token, "");
       setOpen(false);
       toast({ title: "PDF downloaded successfully" });
@@ -278,11 +281,11 @@ function DownloadReportDialog({ workers, jcbUserId, jcbName, ratePerHour }: {
         </DialogHeader>
         <div className="py-4 space-y-5">
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Worker</Label>
+            <Label className="text-sm font-medium">Customer</Label>
             <Select value={workerFilter} onValueChange={setWorkerFilter}>
-              <SelectTrigger><SelectValue placeholder="Select worker" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Select customer" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Workers</SelectItem>
+                <SelectItem value="all">All Customers</SelectItem>
                 {workers.map((w) => <SelectItem key={w.id} value={String(w.id)}>{w.name}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -308,10 +311,10 @@ function DownloadReportDialog({ workers, jcbUserId, jcbName, ratePerHour }: {
           </div>
           <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-2 border border-border/50">
             <p className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Report will include</p>
-            <div className="flex justify-between"><span className="text-muted-foreground">Workers</span><span className="font-medium">{workerFilter === "all" ? `All (${workers.length})` : workers.find((w) => String(w.id) === workerFilter)?.name}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">Customers</span><span className="font-medium">{workerFilter === "all" ? `All (${workers.length})` : workers.find((w) => String(w.id) === workerFilter)?.name}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Period</span><span className="font-medium">{dateLabel()}</span></div>
             {jcbUserId && jcbName && (
-              <div className="flex justify-between"><span className="text-muted-foreground">JCB</span><span className="font-medium text-blue-600">{jcbName}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Vehicle</span><span className="font-medium text-blue-600">{jcbName}</span></div>
             )}
             <div className="flex justify-between"><span className="text-muted-foreground">Sections</span><span className="font-medium text-right">Summary · Sessions · Payments</span></div>
           </div>
@@ -496,10 +499,10 @@ export default function Dashboard() {
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
           <Select value={jcbFilter} onValueChange={setJcbFilter}>
             <SelectTrigger className="flex-1 h-9 text-sm bg-white dark:bg-background">
-              <SelectValue placeholder="Filter by JCB" />
+              <SelectValue placeholder="Filter by Vehicle" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All JCBs</SelectItem>
+              <SelectItem value="all">All Vehicles</SelectItem>
               {jcbUsers.map(u => (
                 <SelectItem key={u.id} value={String(u.id)}>{u.mobile}</SelectItem>
               ))}
@@ -529,7 +532,7 @@ export default function Dashboard() {
       {summary && (
         <>
           <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
-            <StatCard title="Workers" value={summary.totalWorkers} icon={Users} accent="blue" description="Active workforce" />
+            <StatCard title="Customers" value={summary.totalWorkers} icon={Users} accent="blue" description="Active customers" />
             <StatCard title="Total Earned" value={`₹${fmt(summary.totalEarned)}`} icon={TrendingUp} accent="green" description="All sessions" />
             <StatCard title="Total Paid" value={`₹${fmt(summary.totalPaid)}`} icon={Wallet} accent="violet" description={`${paidPercent}% paid`} />
             <StatCard title="Pending" value={`₹${fmt(summary.totalPending)}`} icon={Clock} accent="amber" description="Amount owed" />
@@ -612,7 +615,7 @@ export default function Dashboard() {
         <CardHeader className="pb-3 px-3 sm:px-6">
           <div className="flex items-center justify-between gap-2 mb-2">
             <div>
-              <CardTitle className="text-sm sm:text-base font-semibold">Pending Workers</CardTitle>
+              <CardTitle className="text-sm sm:text-base font-semibold">Pending Customers</CardTitle>
               <CardDescription className="text-xs mt-0.5">
                 {filteredWorkers.length} with outstanding balance
                 {settledCount > 0 && (
@@ -624,7 +627,7 @@ export default function Dashboard() {
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <Input
-              placeholder="Search workers..."
+              placeholder="Search customers..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 pr-9 h-10 text-sm w-full"
@@ -680,19 +683,19 @@ export default function Dashboard() {
           ) : search ? (
             <div className="text-center py-12">
               <UserCircle2 className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-sm font-medium text-muted-foreground">No pending workers match "{search}"</p>
+              <p className="text-sm font-medium text-muted-foreground">No pending customers match "{search}"</p>
               <button onClick={() => setSearch("")} className="text-xs text-primary hover:underline mt-1">Clear search</button>
             </div>
           ) : settledCount > 0 && pendingWorkers.length === 0 ? (
             <div className="text-center py-12">
               <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
-              <p className="text-sm font-medium">All workers are fully settled!</p>
+              <p className="text-sm font-medium">All customers are fully settled!</p>
               <p className="text-xs text-muted-foreground mt-1">No outstanding balances</p>
             </div>
           ) : (
             <div className="text-center py-12">
               <Users className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">No workers yet. Start tracking time to add workers.</p>
+              <p className="text-sm text-muted-foreground">No customers yet. Start tracking time to add customers.</p>
             </div>
           )}
         </CardContent>

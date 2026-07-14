@@ -103,7 +103,7 @@ function WorkerCombobox({
           }}>
             <CommandInput placeholder="Search by name or mobile..." />
             <CommandList>
-              <CommandEmpty>No workers found.</CommandEmpty>
+              <CommandEmpty>No customers found.</CommandEmpty>
               <CommandGroup>
                 {workers.map(w => (
                   <CommandItem key={w.id} value={String(w.id)} onSelect={(val) => {
@@ -122,7 +122,7 @@ function WorkerCombobox({
           </Command>
         </PopoverContent>
       </Popover>
-      <Button type="button" variant="outline" size="icon" className="h-10 w-10 shrink-0 border-dashed hover:border-primary hover:text-primary" title="Add new worker" onClick={onAddWorker}>
+      <Button type="button" variant="outline" size="icon" className="h-10 w-10 shrink-0 border-dashed hover:border-primary hover:text-primary" title="Add new customer" onClick={onAddWorker}>
         <Plus className="h-4 w-4" />
       </Button>
     </div>
@@ -157,7 +157,7 @@ function AddWorkerDialog({
   }, [open]);
 
   const validate = () => {
-    if (!name.trim()) return "Worker name is required.";
+    if (!name.trim()) return "Customer name is required.";
     if (!mobile.trim()) return "Mobile number is required.";
     if (!/^\d{10}$/.test(mobile.trim())) return "Enter a valid 10-digit mobile number.";
     return null;
@@ -177,7 +177,7 @@ function AddWorkerDialog({
       const newWorker = await createWorkerMutation.mutateAsync({ data: { name: name.trim(), mobile: mobile.trim() } });
       onSuccess({ id: newWorker.id, name: newWorker.name, mobile: newWorker.mobile });
       onOpenChange(false);
-      toast({ title: `Worker "${newWorker.name}" added and selected.` });
+      toast({ title: `Customer "${newWorker.name}" added and selected.` });
     } catch (error: any) {
       const status = error?.response?.status ?? error?.status;
       if (status === 409) {
@@ -186,14 +186,14 @@ function AddWorkerDialog({
           onSuccess(data.existingWorker);
           onOpenChange(false);
           toast({
-            title: "Worker already exists",
+            title: "Customer already exists",
             description: `"${data.existingWorker.name}" (${data.existingWorker.mobile}) has been selected.`,
           });
         } else {
-          setMobileError("A worker with this mobile number already exists.");
+          setMobileError("A customer with this mobile number already exists.");
         }
       } else {
-        toast({ title: "Failed to create worker", variant: "destructive" });
+        toast({ title: "Failed to create customer", variant: "destructive" });
       }
     } finally {
       setSubmitting(false);
@@ -206,15 +206,15 @@ function AddWorkerDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-primary" />
-            Add New Worker
+            Add New Customer
           </DialogTitle>
           <DialogDescription>
-            Enter the worker's name and mobile number. Mobile number is used as a unique identifier.
+            Enter the customer's name and mobile number. Mobile number is used as a unique identifier.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="space-y-2">
-            <Label htmlFor="add-worker-name">Worker Name <span className="text-destructive">*</span></Label>
+            <Label htmlFor="add-worker-name">Customer Name <span className="text-destructive">*</span></Label>
             <Input
               id="add-worker-name"
               ref={nameRef}
@@ -243,7 +243,7 @@ function AddWorkerDialog({
           <DialogFooter className="pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="submit" disabled={submitting} className="gap-2">
-              {submitting ? "Adding..." : <><Plus className="h-4 w-4" />Add Worker</>}
+              {submitting ? "Adding..." : <><Plus className="h-4 w-4" />Add Customer</>}
             </Button>
           </DialogFooter>
         </form>
@@ -321,7 +321,7 @@ export default function Track() {
 
   const handleStart = () => {
     if (!fieldName.trim()) { toast({ title: "Field name is required", variant: "destructive" }); return; }
-    if (!workerId) { toast({ title: "Please select a worker", variant: "destructive" }); return; }
+    if (!workerId) { toast({ title: "Please select a customer", variant: "destructive" }); return; }
     const finalWorkerId = parseInt(workerId);
     const finalWorkerName = workers.find(w => w.id === finalWorkerId)?.name || "";
     const session = { workerId: finalWorkerId, workerName: finalWorkerName, fieldName, startTime: new Date().toISOString() };
@@ -364,7 +364,7 @@ export default function Track() {
 
   const handleManualSave = () => {
     if (!manualField.trim()) { toast({ title: "Field name is required", variant: "destructive" }); return; }
-    if (!manualWorkerId) { toast({ title: "Please select a worker", variant: "destructive" }); return; }
+    if (!manualWorkerId) { toast({ title: "Please select a customer", variant: "destructive" }); return; }
     const amt = parseFloat(manualAmount);
     if (isNaN(amt) || amt < 0) { toast({ title: "Invalid amount", variant: "destructive" }); return; }
     const [sh, sm] = manualStart.split(":").map(Number);
@@ -415,7 +415,7 @@ export default function Track() {
                 </div>
                 <div className="grid grid-cols-2 gap-8 w-full max-w-md bg-muted/50 p-6 rounded-lg">
                   <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground uppercase">Worker</span>
+                    <span className="text-xs text-muted-foreground uppercase">Customer</span>
                     <p className="font-medium truncate">{activeSession.workerName}</p>
                   </div>
                   <div className="space-y-1 border-l pl-8 border-border/50">
@@ -436,7 +436,7 @@ export default function Track() {
                 </CardHeader>
                 <CardContent className="pt-6 space-y-6">
                   <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
-                    <div><div className="text-sm text-muted-foreground">Worker</div><div className="font-medium">{activeSession?.workerName}</div></div>
+                    <div><div className="text-sm text-muted-foreground">Customer</div><div className="font-medium">{activeSession?.workerName}</div></div>
                     <div><div className="text-sm text-muted-foreground">Field</div><div className="font-medium">{activeSession?.fieldName}</div></div>
                     <div><div className="text-sm text-muted-foreground">Time Worked</div><div className="font-medium">{sessionEndData.totalHours.toFixed(2)} hours</div></div>
                     <div><div className="text-sm text-muted-foreground">Current Rate</div><div className="font-medium">₹{rateData?.amountPerHour || 0}/hr</div></div>
@@ -453,7 +453,7 @@ export default function Track() {
                   <Button variant="ghost" onClick={handleDiscard}>Discard</Button>
                   <Button size="lg" className="gap-2" onClick={handleSave} disabled={createWorkLogMutation.isPending}>
                     <Save className="w-5 h-5" />
-                    {createWorkLogMutation.isPending ? "Saving..." : "Save & View Worker"}
+                    {createWorkLogMutation.isPending ? "Saving..." : "Save & View Customer"}
                   </Button>
                 </CardFooter>
               </>
@@ -461,12 +461,12 @@ export default function Track() {
               <>
                 <CardHeader>
                   <CardTitle>Start New Session</CardTitle>
-                  <CardDescription>Select a worker and field to begin tracking time</CardDescription>
+                  <CardDescription>Select a customer and field to begin tracking time</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label>Worker</Label>
+                      <Label>Customer</Label>
                       <WorkerCombobox
                         workers={workers}
                         workerId={workerId}
@@ -503,7 +503,7 @@ export default function Track() {
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label>Worker</Label>
+                <Label>Customer</Label>
                 <WorkerCombobox
                   workers={workers}
                   workerId={manualWorkerId}

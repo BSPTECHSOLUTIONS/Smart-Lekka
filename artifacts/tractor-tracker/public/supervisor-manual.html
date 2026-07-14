@@ -104,7 +104,7 @@
     </div>
     <h1>Smart Lekka</h1>
     <div class="role-badge">🏗️ Supervisor Role — User Manual</div>
-    <p>Complete guide to managing JCB workers, work sessions, payments, and expenses as a Supervisor.</p>
+    <p>Complete guide to managing Vehicle customers, work sessions, payments, and expenses as a Supervisor.</p>
     <div class="meta">BSP Tech Solutions · Track Work. Settle Easy.</div>
   </div>
 
@@ -114,9 +114,9 @@
     <ol>
       <li><a href="#login">Logging In</a></li>
       <li><a href="#dashboard">Dashboard Overview</a></li>
-      <li><a href="#jcb-filter">Filtering by JCB Machine</a></li>
-      <li><a href="#workers">Worker Payment Cards</a></li>
-      <li><a href="#pay-worker">Recording a Payment</a></li>
+      <li><a href="#jcb-filter">Filtering by Vehicle Machine</a></li>
+      <li><a href="#customers">Customer Payment Cards</a></li>
+      <li><a href="#pay-customer">Recording a Payment</a></li>
       <li><a href="#history">History Page</a></li>
       <li><a href="#expenses">Expenses Page</a></li>
       <li><a href="#reports">Downloading PDF Reports</a></li>
@@ -146,7 +146,7 @@
       <li>
         <div class="step-body">
           <strong>Enter your Mobile Number</strong>
-          <span>Type your 10-digit mobile number in the "JCB Number / Mobile" field.</span>
+          <span>Type your 10-digit mobile number in the "Vehicle Number / Mobile" field.</span>
         </div>
       </li>
       <li>
@@ -173,52 +173,52 @@
   <div class="section" id="dashboard">
     <div class="section-num">SECTION 2</div>
     <h2>Dashboard Overview</h2>
-    <p class="lead">The Dashboard is your main overview. It shows a summary of all workers under your client, their earnings, payments made, and pending balances.</p>
+    <p class="lead">The Dashboard is your main overview. It shows a summary of all customers under your client, their earnings, payments made, and pending balances.</p>
 
     <h3>Summary Cards</h3>
     <p>At the top of the Dashboard you will see four summary cards:</p>
 
     <div class="mockup">
       <div class="mockup-title">Dashboard Summary Cards</div>
-      <div class="mockup-row"><span class="label">👷 Workers</span><span class="value">4</span></div>
+      <div class="mockup-row"><span class="label">👷 Customers</span><span class="value">4</span></div>
       <div class="mockup-row"><span class="label">📈 Total Earned</span><span class="value">₹48,000</span></div>
       <div class="mockup-row"><span class="label">💼 Total Paid</span><span class="value">₹30,000</span></div>
       <div class="mockup-row"><span class="label">⏳ Pending</span><span class="value badge-orange">₹18,000</span></div>
     </div>
 
     <ul class="bullets">
-      <li><strong>Workers</strong> — Total number of workers active in your client.</li>
+      <li><strong>Customers</strong> — Total number of customers active in your client.</li>
       <li><strong>Total Earned</strong> — Total amount earned across all work sessions.</li>
-      <li><strong>Total Paid</strong> — Total amount already paid to workers.</li>
-      <li><strong>Pending</strong> — Amount still owed to workers.</li>
+      <li><strong>Total Paid</strong> — Total amount already paid to customers.</li>
+      <li><strong>Pending</strong> — Amount still owed to customers.</li>
     </ul>
 
     <h3>Payment Progress Bar</h3>
     <p>Below the cards, a progress bar shows what percentage of earnings have been paid. For example, "62% paid" means 62% of total earned has been paid out.</p>
 
-    <h3>Pending Workers List</h3>
-    <p>Below the progress bar you will see cards for each worker who still has a pending balance. Each card shows:</p>
+    <h3>Pending Customers List</h3>
+    <p>Below the progress bar you will see cards for each customer who still has a pending balance. Each card shows:</p>
     <ul class="bullets">
-      <li>Worker's name and initials</li>
+      <li>Customer's name and initials</li>
       <li>Total earned, total paid, and pending amount</li>
       <li>A <strong>Pay</strong> button to record a payment</li>
     </ul>
   </div>
 
-  <!-- SECTION 3: JCB Filter -->
+  <!-- SECTION 3: Vehicle Filter -->
   <div class="section" id="jcb-filter">
     <div class="section-num">SECTION 3</div>
-    <h2>Filtering by JCB Machine</h2>
-    <p class="lead">As a Supervisor, you oversee multiple JCB machines. Use the JCB filter to view data for one specific JCB at a time.</p>
+    <h2>Filtering by Vehicle Machine</h2>
+    <p class="lead">As a Supervisor, you oversee multiple Vehicle machines. Use the Vehicle filter to view data for one specific Vehicle at a time.</p>
 
     <h3>Where to Find the Filter</h3>
     <p>Just below the Dashboard title, you will see a blue filter bar with a dropdown:</p>
 
     <div class="mockup">
-      <div class="mockup-title">JCB Filter Bar (appears for Supervisors only)</div>
+      <div class="mockup-title">Vehicle Filter Bar (appears for Supervisors only)</div>
       <div class="mockup-row" style="background:#eff6ff; border-color:#bfdbfe;">
         <span style="color:#1d4ed8; font-size:13px;">▼ Filter</span>
-        <span class="label" style="flex:1; padding-left:12px;">All JCBs</span>
+        <span class="label" style="flex:1; padding-left:12px;">All Vehicles</span>
         <span style="font-size:11px; color:#94a3b8;">▾</span>
       </div>
     </div>
@@ -228,45 +228,45 @@
       <li>
         <div class="step-body">
           <strong>Tap the filter dropdown</strong>
-          <span>It shows "All JCBs" by default — this shows data from all machines combined.</span>
+          <span>It shows "All Vehicles" by default — this shows data from all machines combined.</span>
         </div>
       </li>
       <li>
         <div class="step-body">
-          <strong>Select a JCB machine</strong>
-          <span>Choose a specific JCB (e.g. "JCB-001") from the list. The worker list and summary will update to show only work done by that JCB.</span>
+          <strong>Select a Vehicle machine</strong>
+          <span>Choose a specific Vehicle (e.g. "Vehicle-001") from the list. The customer list and summary will update to show only work done by that Vehicle.</span>
         </div>
       </li>
       <li>
         <div class="step-body">
-          <strong>Switch back to All JCBs</strong>
-          <span>Select "All JCBs" to return to the combined view.</span>
+          <strong>Switch back to All Vehicles</strong>
+          <span>Select "All Vehicles" to return to the combined view.</span>
         </div>
       </li>
     </ol>
 
     <div class="tip">
-      <strong>💡 The same JCB filter is available on the Expenses page and the History page.</strong>
+      <strong>💡 The same Vehicle filter is available on the Expenses page and the History page.</strong>
       Each page has its own independent filter so you can compare across pages.
     </div>
   </div>
 
-  <!-- SECTION 4: Workers -->
-  <div class="section" id="workers">
+  <!-- SECTION 4: Customers -->
+  <div class="section" id="customers">
     <div class="section-num">SECTION 4</div>
-    <h2>Worker Payment Cards</h2>
-    <p class="lead">Each worker with a pending balance appears as a card on the Dashboard. Fully paid workers are hidden from the home screen (you can view them on the History page).</p>
+    <h2>Customer Payment Cards</h2>
+    <p class="lead">Each customer with a pending balance appears as a card on the Dashboard. Fully paid customers are hidden from the home screen (you can view them on the History page).</p>
 
-    <h3>Reading a Worker Card</h3>
+    <h3>Reading a Customer Card</h3>
     <div class="mockup">
-      <div class="mockup-title">Example Worker Card</div>
+      <div class="mockup-title">Example Customer Card</div>
       <div style="background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:14px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <div style="width:36px;height:36px;background:#eff6ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1d4ed8;font-size:13px;">RK</div>
             <div>
               <div style="font-weight:700; font-size:14px;">Rajesh Kumar</div>
-              <div style="font-size:11px; color:#94a3b8;">Worker</div>
+              <div style="font-size:11px; color:#94a3b8;">Customer</div>
             </div>
           </div>
           <span class="mockup-badge badge-orange">₹6,000 pending</span>
@@ -279,32 +279,32 @@
     </div>
 
     <ul class="bullets">
-      <li><strong>Initials circle</strong> — First letters of the worker's name.</li>
+      <li><strong>Initials circle</strong> — First letters of the customer's name.</li>
       <li><strong>Pending badge</strong> — Amount still owed in orange.</li>
-      <li><strong>Earned / Paid</strong> — Lifetime totals for this worker.</li>
+      <li><strong>Earned / Paid</strong> — Lifetime totals for this customer.</li>
     </ul>
 
-    <h3>Viewing Worker Detail</h3>
-    <p>Tap the worker card (or the arrow icon) to open the full detail page. There you can see all individual work sessions and every payment made for that worker.</p>
+    <h3>Viewing Customer Detail</h3>
+    <p>Tap the customer card (or the arrow icon) to open the full detail page. There you can see all individual work sessions and every payment made for that customer.</p>
   </div>
 
-  <!-- SECTION 5: Pay Worker -->
-  <div class="section" id="pay-worker">
+  <!-- SECTION 5: Pay Customer -->
+  <div class="section" id="pay-customer">
     <div class="section-num">SECTION 5</div>
     <h2>Recording a Payment</h2>
-    <p class="lead">When you pay a worker, record it in Smart Lekka so the pending balance stays accurate.</p>
+    <p class="lead">When you pay a customer, record it in Smart Lekka so the pending balance stays accurate.</p>
 
     <ol class="steps">
       <li>
         <div class="step-body">
-          <strong>Find the worker on the Dashboard</strong>
-          <span>Scroll through the pending workers list.</span>
+          <strong>Find the customer on the Dashboard</strong>
+          <span>Scroll through the pending customers list.</span>
         </div>
       </li>
       <li>
         <div class="step-body">
           <strong>Tap the "Pay" button</strong>
-          <span>A payment dialog opens showing the worker's current pending amount.</span>
+          <span>A payment dialog opens showing the customer's current pending amount.</span>
         </div>
       </li>
       <li>
@@ -316,7 +316,7 @@
       <li>
         <div class="step-body">
           <strong>Tap "Record Payment"</strong>
-          <span>The pending balance updates immediately. If fully paid, the worker moves off the home screen.</span>
+          <span>The pending balance updates immediately. If fully paid, the customer moves off the home screen.</span>
         </div>
       </li>
     </ol>
@@ -335,34 +335,34 @@
   <div class="section" id="history">
     <div class="section-num">SECTION 6</div>
     <h2>History Page</h2>
-    <p class="lead">The History page shows all workers — both pending and fully paid — along with every work session and payment in detail.</p>
+    <p class="lead">The History page shows all customers — both pending and fully paid — along with every work session and payment in detail.</p>
 
     <h3>Filters Available</h3>
     <div class="feature-grid">
       <div class="feature-box">
         <div class="icon">🏗️</div>
-        <h4>JCB Filter</h4>
-        <p>Show sessions from a specific JCB machine only. Same blue filter bar as the Dashboard.</p>
+        <h4>Vehicle Filter</h4>
+        <p>Show sessions from a specific Vehicle machine only. Same blue filter bar as the Dashboard.</p>
       </div>
       <div class="feature-box">
         <div class="icon">👷</div>
-        <h4>Worker Filter</h4>
-        <p>Choose a specific worker from the dropdown to focus on their history only.</p>
+        <h4>Customer Filter</h4>
+        <p>Choose a specific customer from the dropdown to focus on their history only.</p>
       </div>
       <div class="feature-box">
         <div class="icon">⏳</div>
         <h4>Status: Pending</h4>
-        <p>Show only workers who still have a balance to be paid.</p>
+        <p>Show only customers who still have a balance to be paid.</p>
       </div>
       <div class="feature-box">
         <div class="icon">✅</div>
         <h4>Status: Settled</h4>
-        <p>Show only workers who have been fully paid.</p>
+        <p>Show only customers who have been fully paid.</p>
       </div>
     </div>
 
-    <h3>Reading a Worker's History</h3>
-    <p>Each worker appears as an expandable section showing:</p>
+    <h3>Reading a Customer's History</h3>
+    <p>Each customer appears as an expandable section showing:</p>
     <ul class="bullets">
       <li><strong>Work Sessions</strong> — Date, field name, hours worked, and amount earned per session.</li>
       <li><strong>Payments</strong> — Date and amount of each payment made.</li>
@@ -374,10 +374,10 @@
   <div class="section" id="expenses">
     <div class="section-num">SECTION 7</div>
     <h2>Expenses Page</h2>
-    <p class="lead">Track all JCB-related expenses such as fuel, maintenance, salaries, materials, and other costs.</p>
+    <p class="lead">Track all Vehicle-related expenses such as fuel, maintenance, salaries, materials, and other costs.</p>
 
-    <h3>JCB Filter on Expenses</h3>
-    <p>As a Supervisor, you see expenses from all JCB machines in your client by default. Use the blue JCB filter bar to narrow down to a specific machine.</p>
+    <h3>Vehicle Filter on Expenses</h3>
+    <p>As a Supervisor, you see expenses from all Vehicle machines in your client by default. Use the blue Vehicle filter bar to narrow down to a specific machine.</p>
 
     <h3>Date Range Filter</h3>
     <p>Set a <strong>From</strong> and <strong>To</strong> date to see expenses within a specific period. Tap "Show All Time" to remove the date filter.</p>
@@ -387,7 +387,7 @@
       <div class="feature-box">
         <div class="icon">⛽</div>
         <h4>Fuel</h4>
-        <p>Diesel and other fuel costs for the JCB.</p>
+        <p>Diesel and other fuel costs for the Vehicle.</p>
       </div>
       <div class="feature-box">
         <div class="icon">🔧</div>
@@ -419,25 +419,25 @@
   <div class="section" id="reports">
     <div class="section-num">SECTION 8</div>
     <h2>Downloading PDF Reports</h2>
-    <p class="lead">Generate a professional PDF report from the Dashboard for any time period, for all or selected workers, filtered by JCB if needed.</p>
+    <p class="lead">Generate a professional PDF report from the Dashboard for any time period, for all or selected customers, filtered by Vehicle if needed.</p>
 
     <ol class="steps">
       <li>
         <div class="step-body">
           <strong>Go to the Dashboard</strong>
-          <span>Make sure the JCB filter is set to the machine you want (or "All JCBs").</span>
+          <span>Make sure the Vehicle filter is set to the machine you want (or "All Vehicles").</span>
         </div>
       </li>
       <li>
         <div class="step-body">
           <strong>Tap the "Download Report" button</strong>
-          <span>It appears in the top-right of the Dashboard. If there are no workers it will not appear.</span>
+          <span>It appears in the top-right of the Dashboard. If there are no customers it will not appear.</span>
         </div>
       </li>
       <li>
         <div class="step-body">
-          <strong>Choose Workers</strong>
-          <span>Select "All Workers" or pick a specific worker from the dropdown.</span>
+          <strong>Choose Customers</strong>
+          <span>Select "All Customers" or pick a specific customer from the dropdown.</span>
         </div>
       </li>
       <li>
@@ -449,7 +449,7 @@
       <li>
         <div class="step-body">
           <strong>Review the Summary</strong>
-          <span>The "Report will include" section shows exactly what will be in the PDF. If a JCB filter is active, it shows the JCB name in blue.</span>
+          <span>The "Report will include" section shows exactly what will be in the PDF. If a Vehicle filter is active, it shows the Vehicle name in blue.</span>
         </div>
       </li>
       <li>
@@ -462,7 +462,7 @@
 
     <div class="tip">
       <strong>💡 What's in the PDF?</strong>
-      The PDF includes: a summary table (earned, paid, pending per worker), all individual work sessions with dates and hours, and all payment records.
+      The PDF includes: a summary table (earned, paid, pending per customer), all individual work sessions with dates and hours, and all payment records.
     </div>
   </div>
 
@@ -480,10 +480,10 @@
     </div>
 
     <ul class="bullets">
-      <li><strong>Home (Dashboard)</strong> — Overview summary + pending workers + JCB filter.</li>
-      <li><strong>Track</strong> — Start a live timer session or add a manual work entry for any worker.</li>
-      <li><strong>History</strong> — Full session and payment history with JCB and worker filters.</li>
-      <li><strong>Expenses</strong> — All expenses with JCB filter and date range.</li>
+      <li><strong>Home (Dashboard)</strong> — Overview summary + pending customers + Vehicle filter.</li>
+      <li><strong>Track</strong> — Start a live timer session or add a manual work entry for any customer.</li>
+      <li><strong>History</strong> — Full session and payment history with Vehicle and customer filters.</li>
+      <li><strong>Expenses</strong> — All expenses with Vehicle filter and date range.</li>
     </ul>
 
     <div class="tip">

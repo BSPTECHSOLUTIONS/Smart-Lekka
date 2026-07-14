@@ -19,7 +19,7 @@ import {
 } from "recharts";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
-import { generateDashboardPDF, type ReportFilters } from "@/lib/generate-pdf";
+import type { ReportFilters } from "@/lib/generate-pdf";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 
 function fmt(n: number) {
@@ -149,6 +149,7 @@ function DownloadDialog({ workers, jcbUserId, jcbMobile }: {
         jcbName: jcbMobile ?? null,
         clientName,
       };
+      const { generateDashboardPDF } = await import("@/lib/generate-pdf");
       await generateDashboardPDF(workers, filters, token, "");
       setOpen(false);
       toast({ title: "PDF downloaded" });
@@ -175,13 +176,13 @@ function DownloadDialog({ workers, jcbUserId, jcbMobile }: {
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-muted-foreground">Worker</Label>
+            <Label className="text-xs font-semibold text-muted-foreground">Customer</Label>
             <Select value={workerFilter} onValueChange={setWorkerFilter}>
               <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Select worker" />
+                <SelectValue placeholder="Select customer" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Workers</SelectItem>
+                <SelectItem value="all">All Customers</SelectItem>
                 {workers.map((w) => (
                   <SelectItem key={w.id} value={String(w.id)}>{w.name}</SelectItem>
                 ))}
@@ -374,7 +375,7 @@ export default function SupervisorOverview() {
       {jcbUsers.length > 0 && (
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            <Tractor className="w-3.5 h-3.5" /> JCB Filter
+            <Tractor className="w-3.5 h-3.5" /> Vehicle Filter
           </p>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <button
@@ -385,7 +386,7 @@ export default function SupervisorOverview() {
                   : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground bg-background"
               }`}
             >
-              All JCBs
+              All Vehicles
             </button>
             {jcbUsers.map((j) => (
               <button
@@ -406,7 +407,7 @@ export default function SupervisorOverview() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-        <StatCard title="Total Workers" value={String(workerCount)} icon={Users} accent="blue" />
+        <StatCard title="Total Customers" value={String(workerCount)} icon={Users} accent="blue" />
         <StatCard title="Total Earned" value={`₹${fmt(totalEarned)}`} icon={TrendingUp} accent="green" />
         <StatCard title="Total Paid" value={`₹${fmt(totalPaid)}`} icon={Banknote} accent="violet" />
         <StatCard title="Pending" value={`₹${fmt(pendingAmt)}`} icon={Wallet} accent="amber" />
@@ -440,7 +441,7 @@ export default function SupervisorOverview() {
       {/* Date range for JCB income cards */}
       <div className="flex items-center gap-1.5 flex-wrap">
         <CalendarRange className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-        <span className="text-xs text-muted-foreground font-medium mr-1">JCB Income Period:</span>
+        <span className="text-xs text-muted-foreground font-medium mr-1">Vehicle Income Period:</span>
         {(["today", "this_month", "last_month", "custom"] as CardsPreset[]).map((p) => {
           const labels: Record<CardsPreset, string> = { today: "Today", this_month: "This Month", last_month: "Last Month", custom: "Custom" };
           return (
@@ -469,7 +470,7 @@ export default function SupervisorOverview() {
             <Card className="border-border shadow-sm">
               <CardHeader className="pb-0 pt-4 px-4">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" /> JCB Income Share
+                  <BarChart3 className="w-4 h-4 text-primary" /> Vehicle Income Share
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-2 pb-3 pt-2">
@@ -635,7 +636,7 @@ export default function SupervisorOverview() {
       {workers.length > 0 && (
         <div>
           <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary" /> All Workers
+            <Users className="w-4 h-4 text-primary" /> All Customers
           </h2>
           <Card className="border-border shadow-sm overflow-hidden">
             <div className="divide-y divide-border">
@@ -673,9 +674,9 @@ export default function SupervisorOverview() {
             <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
               <Users className="w-6 h-6 text-primary" />
             </div>
-            <p className="text-sm font-medium">No workers found</p>
+            <p className="text-sm font-medium">No customers found</p>
             <p className="text-xs text-muted-foreground mt-1">
-              {selectedJcbId ? "No workers for this JCB. Try selecting a different JCB." : "Workers will appear here once added to your client."}
+              {selectedJcbId ? "No customers for this vehicle. Try selecting a different vehicle." : "Customers will appear here once added to your client."}
             </p>
           </CardContent>
         </Card>

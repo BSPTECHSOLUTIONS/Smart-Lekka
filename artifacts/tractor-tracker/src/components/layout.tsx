@@ -65,13 +65,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/expenses", label: "Expenses", icon: Receipt },
     ...(isSupervisor ? [
       { href: "/supervisor-overview", label: "Overview", icon: LayoutDashboard },
-      { href: "/jcb-report", label: "JCB Report", icon: BarChart3 },
+      { href: "/jcb-report", label: "Vehicle Report", icon: BarChart3 },
       { href: "/invoices", label: "Invoices", icon: FileText },
     ] : []),
     ...(user.role === "admin" ? [{ href: "/admin", label: "Admin", icon: Users }] : []),
   ];
 
-  const roleLabel = isSupervisor ? "Supervisor" : user.role === "admin" ? "Admin" : "JCB";
+  const roleLabel = isSupervisor ? "Supervisor" : user.role === "admin" ? "Admin" : "Vehicle";
   const initials = (user.name || roleLabel).slice(0, 2).toUpperCase();
 
   return (
@@ -93,7 +93,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {/* Nav */}
           <nav className="flex flex-col gap-0.5 flex-1 px-3 py-4 overflow-y-auto">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/30 px-3 mb-2">
-              {isSupervisor ? "Supervisor" : "JCB Menu"}
+              {isSupervisor ? "Supervisor" : "Vehicle Menu"}
             </p>
             {navItems.map((item) => {
               const active = location === item.href || (item.href !== "/" && location.startsWith(item.href));

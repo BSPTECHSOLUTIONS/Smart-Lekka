@@ -87,7 +87,7 @@ function sessionWhatsAppMsg(clientName: string, workerName: string, log: WorkLog
   return [
     `*${clientName} \u2014 Work Entry*`,
     ``,
-    `👷 Worker : ${workerName}`,
+    `👷 Customer : ${workerName}`,
     `🌾 Field  : ${log.fieldName}`,
     `📅 Date   : ${format(start, "dd MMM yyyy")}`,
     ``,
@@ -202,7 +202,7 @@ export default function WorkerDetail() {
     const msg = [
       `*${clientName} \u2014 Payment Summary*`,
       ``,
-      `👷 Worker : ${worker.name}`,
+      `👷 Customer : ${worker.name}`,
       `📅 Date   : ${format(new Date(), "dd MMM yyyy")}`,
       ``,
       `\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`,
@@ -235,7 +235,7 @@ export default function WorkerDetail() {
   }
 
   if (!worker) {
-    return <div className="p-8 text-center text-destructive">Worker not found.</div>;
+    return <div className="p-8 text-center text-destructive">Customer not found.</div>;
   }
 
   const isSettled = worker.pendingAmount <= 0;
@@ -311,13 +311,13 @@ export default function WorkerDetail() {
                   )}
                   {jcbUsers.length > 1 && (
                     <div>
-                      <Label className="text-xs text-muted-foreground">Collected by JCB</Label>
+                      <Label className="text-xs text-muted-foreground">Collected by Vehicle</Label>
                       <Select
                         value={collectingJcbId ? String(collectingJcbId) : ""}
                         onValueChange={(v) => setCollectingJcbId(v ? parseInt(v) : null)}
                       >
                         <SelectTrigger className="mt-1.5">
-                          <SelectValue placeholder="Select JCB that collected money" />
+                          <SelectValue placeholder="Select vehicle that collected money" />
                         </SelectTrigger>
                         <SelectContent>
                           {jcbUsers.map((u) => (
@@ -337,7 +337,7 @@ export default function WorkerDetail() {
                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Pending Sessions</p>
                         <div className="rounded-lg border border-border overflow-hidden">
                           <div className="grid grid-cols-[1fr_auto_auto] text-[10px] uppercase font-semibold text-muted-foreground px-2.5 py-1.5 bg-muted/50 gap-2">
-                            <span>Date · Field · JCB</span>
+                            <span>Date · Field · Vehicle</span>
                             <span className="text-right">Earned</span>
                             <span className="text-right">Due</span>
                           </div>

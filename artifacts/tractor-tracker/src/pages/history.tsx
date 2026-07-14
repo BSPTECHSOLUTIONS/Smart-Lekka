@@ -179,10 +179,10 @@ export default function HistoryPage() {
             <Filter className="w-4 h-4 text-blue-600 shrink-0" />
             <Select value={jcbFilter} onValueChange={setJcbFilter}>
               <SelectTrigger className="flex-1 h-9 text-sm bg-white dark:bg-background">
-                <SelectValue placeholder="Filter by JCB" />
+                <SelectValue placeholder="Filter by Vehicle" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All JCBs</SelectItem>
+                <SelectItem value="all">All Vehicles</SelectItem>
                 {jcbUsers.map(u => (
                   <SelectItem key={u.id} value={String(u.id)}>
                     {u.mobile}
@@ -195,10 +195,10 @@ export default function HistoryPage() {
 
         <Select value={workerFilter} onValueChange={setWorkerFilter}>
           <SelectTrigger className="w-full h-10">
-            <SelectValue placeholder="Filter by worker" />
+            <SelectValue placeholder="Filter by customer" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Workers</SelectItem>
+            <SelectItem value="all">All Customers</SelectItem>
             {workers?.map(w => <SelectItem key={w.id} value={String(w.id)}>{w.name}</SelectItem>)}
           </SelectContent>
         </Select>

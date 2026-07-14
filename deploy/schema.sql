@@ -116,3 +116,46 @@ CREATE TABLE IF NOT EXISTS jcb_settlements (
   notes            TEXT,
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- ============================================================
+-- Indexes — every column below is used as a filter in the API
+-- (per-worker, per-vehicle/JCB, per-client, per-supervisor, or
+-- date-range lookups). Without these, those queries degrade to
+-- full table scans as data grows. Safe to run on an existing
+-- database; CREATE INDEX IF NOT EXISTS is a no-op if already applied.
+-- ============================================================
+
+-- users
+CREATE INDEX IF NOT EXISTS idx_users_client_id      ON users(client_id);
+CREATE INDEX IF NOT EXISTS idx_users_supervisor_id  ON users(supervisor_id);
+
+-- workers
+CREATE INDEX IF NOT EXISTS idx_workers_user_id      ON workers(user_id);
+CREATE INDEX IF NOT EXISTS idx_workers_client_id    ON workers(client_id);
+
+-- work_logs — filtered by worker on every dashboard/history/report call,
+-- by jcb_user_id for per-vehicle filters, and by start_time for date ranges
+CREATE INDEX IF NOT EXISTS idx_work_logs_worker_id    ON work_logs(worker_id);
+CREATE INDEX IF NOT EXISTS idx_work_logs_jcb_user_id  ON work_logs(jcb_user_id);
+CREATE INDEX IF NOT EXISTS idx_work_logs_start_time   ON work_logs(start_time);
+CREATE INDEX IF NOT EXISTS idx_work_logs_status       ON work_logs(status);
+
+-- payments
+CREATE INDEX IF NOT EXISTS idx_payments_worker_id     ON payments(worker_id);
+CREATE INDEX IF NOT EXISTS idx_payments_jcb_user_id   ON payments(jcb_user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_payment_date  ON payments(payment_date);
+
+-- expenses
+CREATE INDEX IF NOT EXISTS idx_expenses_user_id       ON expenses(user_id);
+CREATE INDEX IF NOT EXISTS idx_expenses_date          ON expenses(date);
+
+-- invoices / invoice_items / invoice_payments
+CREATE INDEX IF NOT EXISTS idx_invoices_supervisor_id     ON invoices(supervisor_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_client_id         ON invoices(client_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice_id   ON invoice_items(invoice_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_payments_invoice_id ON invoice_payments(invoice_id);
+
+-- jcb_settlements
+CREATE INDEX IF NOT EXISTS idx_jcb_settlements_jcb_user_id   ON jcb_settlements(jcb_user_id);
+CREATE INDEX IF NOT EXISTS idx_jcb_settlements_supervisor_id ON jcb_settlements(supervisor_id);
+CREATE INDEX IF NOT EXISTS idx_jcb_settlements_date          ON jcb_settlements(settlement_date);

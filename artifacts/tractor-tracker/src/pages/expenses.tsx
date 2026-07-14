@@ -216,10 +216,10 @@ export default function ExpensesPage() {
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
           <Select value={jcbFilter} onValueChange={setJcbFilter}>
             <SelectTrigger className="flex-1 h-9 text-sm bg-white dark:bg-background">
-              <SelectValue placeholder="Filter by JCB" />
+              <SelectValue placeholder="Filter by Vehicle" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All JCBs</SelectItem>
+              <SelectItem value="all">All Vehicles</SelectItem>
               {jcbUsers.map(u => (
                 <SelectItem key={u.id} value={String(u.id)}>{u.mobile}</SelectItem>
               ))}
