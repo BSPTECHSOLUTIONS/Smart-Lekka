@@ -49,7 +49,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "vendor-react": ["react", "react-dom", "wouter"],
+          "vendor-react": ["react", "react-dom", "wouter", "@tanstack/react-query"],
           "vendor-radix": [
             "@radix-ui/react-accordion",
             "@radix-ui/react-alert-dialog",
@@ -80,7 +80,6 @@ export default defineConfig({
             "@radix-ui/react-tooltip",
           ],
           "vendor-charts": ["recharts"],
-          "vendor-query": ["@tanstack/react-query"],
         },
       },
     },
