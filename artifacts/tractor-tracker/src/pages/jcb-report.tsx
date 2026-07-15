@@ -39,7 +39,7 @@ interface SiteLog {
 interface ReportSummary {
   amountReceived: number; expensesPaid: number; netAmount: number;
   totalHours: number; sitesCount: number; previousPending: number;
-  totalToCollect: number;
+  collectedToday: number; totalToCollect: number;
 }
 
 interface ReportData {
@@ -50,7 +50,7 @@ interface ReportData {
 interface JcbCard {
   jcbId: number; jcbName: string; jcbMobile: string;
   amountReceived: number; expensesPaid: number; netAmount: number;
-  previousPending: number; totalToCollect: number;
+  previousPending: number; collectedToday: number; totalToCollect: number;
   totalHours: number; sitesCount: number;
 }
 
@@ -257,6 +257,12 @@ function JcbCardComponent({ card, onSettle, onViewReport }: {
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Net Amount</p>
             <p className="text-base font-bold mt-0.5 text-emerald-600">₹{fmt(card.netAmount)}</p>
           </div>
+          {card.collectedToday > 0 && (
+            <div className="bg-sky-50 dark:bg-sky-950/30 rounded-lg p-3 border border-sky-200 dark:border-sky-800">
+              <p className="text-[10px] text-sky-700 uppercase tracking-wider font-semibold">Collected Today</p>
+              <p className="text-base font-bold mt-0.5 text-sky-700">₹{fmt(card.collectedToday)}</p>
+            </div>
+          )}
           {card.previousPending > 0 && (
             <div className="bg-amber-50 dark:bg-amber-950/30 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
               <p className="text-[10px] text-amber-600 uppercase tracking-wider font-semibold">Prev. Pending</p>
@@ -459,6 +465,9 @@ export default function JcbReportPage() {
             <SummaryCard label="Amount Received" value={`₹${fmt(summary.amountReceived)}`} icon={Banknote} accent="emerald" sub="From customers" />
             <SummaryCard label="Expenses Paid" value={`₹${fmt(summary.expensesPaid)}`} icon={Receipt} accent="rose" sub="Vehicle expenses" />
             <SummaryCard label="Net to Collect" value={`₹${fmt(summary.netAmount)}`} icon={TrendingUp} accent="blue" sub="Received − Expenses" />
+            {summary.collectedToday > 0 && (
+              <SummaryCard label="Collected Today" value={`₹${fmt(summary.collectedToday)}`} icon={HandCoins} accent="violet" sub="Already settled" />
+            )}
             <SummaryCard label="Hours Worked" value={fmtHours(summary.totalHours)} icon={Clock} accent="violet" sub="Total tracked" />
             <SummaryCard label="Sites Worked" value={String(summary.sitesCount)} icon={MapPin} accent="amber" sub={`on ${format(new Date(selectedDate + "T00:00:00"), "dd MMM")}`} />
           </div>
@@ -473,6 +482,9 @@ export default function JcbReportPage() {
               <div className="mt-1.5 space-y-0.5 text-amber-700 dark:text-amber-400">
                 <p>Yesterday's Pending: <strong>₹{fmt(summary.previousPending)}</strong></p>
                 <p>Today's Net Amount: <strong>₹{fmt(summary.netAmount)}</strong></p>
+                {summary.collectedToday > 0 && (
+                  <p>Collected Today: <strong>₹{fmt(summary.collectedToday)}</strong></p>
+                )}
                 <p className="font-bold text-amber-800 dark:text-amber-200">Total to Collect: ₹{fmt(summary.totalToCollect)}</p>
               </div>
             </div>
@@ -560,6 +572,7 @@ export default function JcbReportPage() {
             expensesPaid: settleCard.expensesPaid,
             netAmount: settleCard.netAmount,
             previousPending: settleCard.previousPending,
+            collectedToday: settleCard.collectedToday,
             totalToCollect: settleCard.totalToCollect,
             totalHours: settleCard.totalHours,
             sitesCount: settleCard.sitesCount,

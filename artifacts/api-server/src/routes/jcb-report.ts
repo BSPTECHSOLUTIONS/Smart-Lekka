@@ -94,6 +94,26 @@ router.get("/jcb-report/cards", requireAuth, async (req, res) => {
         0
       );
 
+      // Settlements already recorded *within* the selected range (e.g. today)
+      // — this is what "Received" actually reduces from the Due amount.
+      // Without this, clicking Received never lowers what's shown as owed.
+      const rangeSettlements = await db
+        .select()
+        .from(jcbSettlementsTable)
+        .where(
+          and(
+            eq(jcbSettlementsTable.jcbUserId, jcb.id),
+            gte(jcbSettlementsTable.settlementDate, fromStr),
+            lte(jcbSettlementsTable.settlementDate, toStr)
+          )
+        );
+      const collectedToday = rangeSettlements.reduce(
+        (s, st) => s + parseFloat((st.collected as string) || "0"),
+        0
+      );
+
+      const totalToCollect = Math.max(0, netAmount + previousPending - collectedToday);
+
       return {
         jcbId: jcb.id,
         jcbName: jcb.name,
@@ -102,7 +122,8 @@ router.get("/jcb-report/cards", requireAuth, async (req, res) => {
         expensesPaid,
         netAmount,
         previousPending,
-        totalToCollect: netAmount + previousPending,
+        collectedToday,
+        totalToCollect,
         totalHours,
         sitesCount: sites,
       };
@@ -321,6 +342,22 @@ router.get("/jcb-report", requireAuth, async (req, res) => {
     0
   );
 
+  // Settlements already recorded for this exact date — subtract from Due,
+  // same fix as the cards endpoint above.
+  const todaySettlements = await db
+    .select()
+    .from(jcbSettlementsTable)
+    .where(
+      and(
+        inArray(jcbSettlementsTable.jcbUserId, targetIds),
+        eq(jcbSettlementsTable.settlementDate, dateStr)
+      )
+    );
+  const collectedToday = todaySettlements.reduce(
+    (s, st) => s + parseFloat((st.collected as string) || "0"),
+    0
+  );
+
   const sites_data = logs.map((l) => ({
     id: l.id,
     fieldName: l.fieldName,
@@ -342,7 +379,8 @@ router.get("/jcb-report", requireAuth, async (req, res) => {
       totalHours,
       sitesCount: sites,
       previousPending,
-      totalToCollect: netAmount + previousPending,
+      collectedToday,
+      totalToCollect: Math.max(0, netAmount + previousPending - collectedToday),
     },
     sites: sites_data,
     expenses: expenses.map((e) => ({
