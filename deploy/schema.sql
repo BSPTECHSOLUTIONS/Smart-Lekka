@@ -29,13 +29,18 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 
 CREATE TABLE IF NOT EXISTS workers (
-  id         SERIAL PRIMARY KEY,
-  name       TEXT NOT NULL,
-  mobile     TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  user_id    INTEGER REFERENCES users(id),
-  client_id  INTEGER REFERENCES clients(id)
+  id              SERIAL PRIMARY KEY,
+  name            TEXT NOT NULL,
+  mobile          TEXT,
+  advance_balance REAL NOT NULL DEFAULT 0,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  user_id         INTEGER REFERENCES users(id),
+  client_id       INTEGER REFERENCES clients(id)
 );
+
+-- Safe to re-run on an existing database that was created before this
+-- column existed — adds it only if missing, defaulting existing rows to 0.
+ALTER TABLE workers ADD COLUMN IF NOT EXISTS advance_balance REAL NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS work_logs (
   id          SERIAL PRIMARY KEY,

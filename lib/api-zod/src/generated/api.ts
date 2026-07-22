@@ -105,6 +105,7 @@ export const ListWorkersResponseItem = zod.object({
   totalEarned: zod.number(),
   totalPaid: zod.number(),
   pendingAmount: zod.number(),
+  advanceBalance: zod.number(),
 });
 export const ListWorkersResponse = zod.array(ListWorkersResponseItem);
 
@@ -131,6 +132,7 @@ export const GetWorkerResponse = zod.object({
   totalEarned: zod.number(),
   totalPaid: zod.number(),
   pendingAmount: zod.number(),
+  advanceBalance: zod.number(),
 });
 
 /**
@@ -172,6 +174,13 @@ export const GetWorkerPaymentsResponseItem = zod.object({
 export const GetWorkerPaymentsResponse = zod.array(
   GetWorkerPaymentsResponseItem,
 );
+
+/**
+ * @summary Delete a work log entry (supervisor/admin only, blocked if already paid)
+ */
+export const DeleteWorkLogParams = zod.object({
+  id: zod.coerce.number(),
+});
 
 /**
  * @summary Save a completed work session

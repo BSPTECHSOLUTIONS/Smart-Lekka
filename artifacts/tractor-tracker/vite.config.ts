@@ -34,7 +34,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
-      "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
     },
     dedupe: ["react", "react-dom"],
   },
@@ -42,10 +41,6 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
-    // Split large, rarely-changing vendor code into its own cacheable
-    // chunks so a deploy that only touches app code doesn't force users to
-    // re-download React/Radix/etc, and so the browser can fetch them in
-    // parallel instead of one giant bundle.
     rollupOptions: {
       output: {
         manualChunks: {

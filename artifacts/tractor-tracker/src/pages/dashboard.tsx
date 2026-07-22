@@ -127,7 +127,9 @@ function RateSettingDialog({ currentRate }: { currentRate: number }) {
   );
 }
 
-function PaymentDialog({ workerId, workerName, pendingAmount }: { workerId: number; workerName: string; pendingAmount: number }) {
+function PaymentDialog({ workerId, workerName, pendingAmount, advanceBalance }: {
+  workerId: number; workerName: string; pendingAmount: number; advanceBalance: number;
+}) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState(pendingAmount > 0 ? pendingAmount.toFixed(0) : "");
   const queryClient = useQueryClient();
@@ -149,7 +151,10 @@ function PaymentDialog({ workerId, workerName, pendingAmount }: { workerId: numb
   });
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(o) => {
+      setOpen(o);
+      if (o) setAmount(pendingAmount > 0 ? pendingAmount.toFixed(0) : "");
+    }}>
       <DialogTrigger asChild>
         <Button
           size="sm"
@@ -165,11 +170,17 @@ function PaymentDialog({ workerId, workerName, pendingAmount }: { workerId: numb
           <DialogTitle>Record Payment</DialogTitle>
           <CardDescription>Customer: {workerName}</CardDescription>
         </DialogHeader>
-        <div className="py-4 space-y-4">
+        <div className="py-4 space-y-3">
+          {advanceBalance > 0 && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-300 p-3 rounded-lg text-sm flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              Advance credit of <strong>₹{fmt(advanceBalance)}</strong> will be auto-applied
+            </div>
+          )}
           {pendingAmount > 0 && (
             <div className="bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-300 p-3 rounded-lg text-sm flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
-              Pending Balance: <strong>₹{fmt(pendingAmount)}</strong>
+              Net amount to collect: <strong>₹{fmt(pendingAmount)}</strong>
             </div>
           )}
           <div>
@@ -248,8 +259,6 @@ function DownloadReportDialog({ workers, jcbUserId, jcbName, ratePerHour }: {
         clientName,
         ratePerHour: ratePerHour ?? null,
       };
-      // Loaded on demand: jsPDF/html2canvas are heavy and most users never
-      // download a report, so keep them out of the main dashboard bundle.
       const { generateDashboardPDF } = await import("@/lib/generate-pdf");
       await generateDashboardPDF(workers, filters, token, "");
       setOpen(false);
@@ -334,7 +343,8 @@ function DownloadReportDialog({ workers, jcbUserId, jcbName, ratePerHour }: {
 interface JcbUser { id: number; name: string; mobile: string; }
 interface WorkerSummary {
   id: number; name: string; mobile?: string | null;
-  totalEarned: number; totalPaid: number; pendingAmount: number; createdAt: string;
+  totalEarned: number; totalPaid: number; pendingAmount: number;
+  advanceBalance: number; createdAt: string;
 }
 
 export default function Dashboard() {
@@ -670,7 +680,7 @@ export default function Dashboard() {
                   </div>
 
                   <div className="flex items-center gap-1 shrink-0">
-                    <PaymentDialog workerId={worker.id} workerName={worker.name} pendingAmount={worker.pendingAmount} />
+                    <PaymentDialog workerId={worker.id} workerName={worker.name} pendingAmount={worker.pendingAmount} advanceBalance={worker.advanceBalance ?? 0} />
                     <Link href={`/workers/${worker.id}`}>
                       <Button variant="ghost" size="sm" className="h-9 w-9 p-0 hover:bg-primary/10">
                         <ArrowRight className="w-4 h-4" />

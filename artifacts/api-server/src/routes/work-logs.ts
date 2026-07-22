@@ -80,7 +80,7 @@ router.post("/work-logs", requireAuth, async (req, res): Promise<void> => {
  * Mark a single work entry as fully paid
  */
 router.patch("/work-logs/:id/mark-paid", requireAuth, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   if (isNaN(id)) {
     res.status(400).json({ error: "Invalid work log id" });
     return;
@@ -119,6 +119,55 @@ router.patch("/work-logs/:id/mark-paid", requireAuth, async (req, res): Promise<
     .returning();
 
   res.json({ id: updated.id, status: updated.status, paidAmount: updated.paidAmount });
+});
+
+/**
+ * DELETE /work-logs/:id
+ * Delete a work log entry — supervisor/admin only, blocked if any payment has been made
+ */
+router.delete("/work-logs/:id", requireAuth, async (req, res): Promise<void> => {
+  const user = req.user!;
+
+  if (user.role !== "supervisor" && user.role !== "admin") {
+    res.status(403).json({ error: "Only supervisors can delete work entries" });
+    return;
+  }
+
+  const id = parseInt(String(req.params.id));
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid work log id" });
+    return;
+  }
+
+  const [log] = await db
+    .select()
+    .from(workLogsTable)
+    .where(eq(workLogsTable.id, id));
+
+  if (!log) {
+    res.status(404).json({ error: "Work log not found" });
+    return;
+  }
+
+  // Block deletion if any payment has already been allocated to this entry
+  if ((log.paidAmount ?? 0) > 0) {
+    res.status(400).json({ error: "Cannot delete an entry that has already been partially or fully paid" });
+    return;
+  }
+
+  // Verify worker ownership
+  const ownerCondition = user.clientId
+    ? and(eq(workersTable.id, log.workerId), eq(workersTable.clientId, user.clientId))
+    : and(eq(workersTable.id, log.workerId), eq(workersTable.userId, user.userId));
+
+  const [worker] = await db.select().from(workersTable).where(ownerCondition);
+  if (!worker) {
+    res.status(403).json({ error: "Access denied" });
+    return;
+  }
+
+  await db.delete(workLogsTable).where(eq(workLogsTable.id, id));
+  res.status(204).end();
 });
 
 export { activeSessionStore };

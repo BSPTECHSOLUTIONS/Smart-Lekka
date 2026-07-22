@@ -300,6 +300,41 @@ paths:
                 items:
                   $ref: "#/components/schemas/Payment"
 
+  /work-logs/{id}:
+    delete:
+      operationId: deleteWorkLog
+      tags: [work-logs]
+      summary: Delete a work log entry (supervisor/admin only, blocked if already paid)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted successfully
+        "400":
+          description: Entry has been paid and cannot be deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /work-logs:
     post:
       operationId: createWorkLog
@@ -544,6 +579,8 @@ components:
           type: number
         pendingAmount:
           type: number
+        advanceBalance:
+          type: number
       required:
         - id
         - name
@@ -551,6 +588,7 @@ components:
         - totalEarned
         - totalPaid
         - pendingAmount
+        - advanceBalance
 
     CreateWorkerBody:
       type: object

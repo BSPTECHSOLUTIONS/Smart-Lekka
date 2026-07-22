@@ -64,9 +64,8 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 overrides:
-  # This project deploys to a Linux x64 Docker container (DigitalOcean), so we
-  # exclude prebuilt native binaries for every other OS/arch to keep installs
-  # small and fast.
+  # This project deploys to a Linux x64 Docker container, so we exclude
+  # prebuilt native binaries for every other OS/arch to keep installs small.
   "esbuild>@esbuild/darwin-arm64": "-"
   "esbuild>@esbuild/darwin-x64": "-"
   "esbuild>@esbuild/freebsd-arm64": "-"

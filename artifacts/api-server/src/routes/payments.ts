@@ -6,7 +6,11 @@ import { CreatePaymentBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
-async function allocateFIFO(workerId: number, paymentAmount: number) {
+/**
+ * Allocate a payment amount across unpaid work logs (FIFO by startTime).
+ * Returns the unallocated remainder (overpayment / advance).
+ */
+async function allocateFIFO(workerId: number, paymentAmount: number): Promise<number> {
   const entries = await db
     .select()
     .from(workLogsTable)
@@ -28,6 +32,8 @@ async function allocateFIFO(workerId: number, paymentAmount: number) {
       remaining = 0;
     }
   }
+
+  return remaining;
 }
 
 router.post("/payments", requireAuth, async (req, res): Promise<void> => {
@@ -54,11 +60,22 @@ router.post("/payments", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
+  // Record the payment first
   const [payment] = await db
     .insert(paymentsTable)
     .values({ workerId, amountPaid, jcbUserId: jcbUserId ?? null })
     .returning();
-  await allocateFIFO(workerId, amountPaid);
+
+  // Apply existing advance balance + new payment through FIFO
+  const existingAdvance = worker.advanceBalance ?? 0;
+  const totalToAllocate = existingAdvance + amountPaid;
+  const unallocated = await allocateFIFO(workerId, totalToAllocate);
+
+  // Store any unallocated remainder as new advance balance
+  await db
+    .update(workersTable)
+    .set({ advanceBalance: unallocated })
+    .where(eq(workersTable.id, workerId));
 
   res.status(201).json({
     id: payment.id,
@@ -66,6 +83,7 @@ router.post("/payments", requireAuth, async (req, res): Promise<void> => {
     jcbUserId: payment.jcbUserId,
     amountPaid: payment.amountPaid,
     paymentDate: payment.paymentDate.toISOString(),
+    advanceBalance: unallocated,
   });
 });
 

@@ -118,6 +118,7 @@ router.get("/workers", requireAuth, async (req, res): Promise<void> => {
   const summaries = await Promise.all(workers.map(async (w) => {
     const s = await getWorkerSummaryForJcbs(w.id, jcbIds);
     if (!s) return null;
+    const advance = w.advanceBalance ?? 0;
     return {
       id: w.id,
       name: w.name,
@@ -125,7 +126,8 @@ router.get("/workers", requireAuth, async (req, res): Promise<void> => {
       createdAt: w.createdAt.toISOString(),
       totalEarned: s.totalEarned,
       totalPaid: s.totalPaid,
-      pendingAmount: s.totalEarned - s.totalPaid,
+      pendingAmount: Math.max(0, s.totalEarned - s.totalPaid - advance),
+      advanceBalance: advance,
     };
   }));
 
@@ -202,6 +204,7 @@ router.get("/workers/:id", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
+  const advance = worker.advanceBalance ?? 0;
   res.json(GetWorkerResponse.parse({
     id: worker.id,
     name: worker.name,
@@ -209,7 +212,8 @@ router.get("/workers/:id", requireAuth, async (req, res): Promise<void> => {
     createdAt: worker.createdAt.toISOString(),
     totalEarned: s.totalEarned,
     totalPaid: s.totalPaid,
-    pendingAmount: s.totalEarned - s.totalPaid,
+    pendingAmount: Math.max(0, s.totalEarned - s.totalPaid - advance),
+    advanceBalance: advance,
   }));
 });
 

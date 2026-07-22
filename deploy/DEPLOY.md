@@ -10,44 +10,32 @@
 ## Already have a droplet with other apps running on it? Read this first.
 
 If this droplet already runs other sites/apps, the only real risk is **port
-80/443 conflicts** — everything else in this project (container names,
-database, Docker volume) is already namespaced under `smart-lekka` so it
-can't collide with unrelated projects.
+80/443 conflicts** — container names, the database, and its volume are
+already namespaced under `smart-lekka` so they can't collide with unrelated
+projects.
 
 **1. Check what's already using ports 80 and 443:**
 ```bash
 sudo ss -tlnp | grep -E ':80 |:443 '
 ```
-If you see `nginx`, `apache2`, or another `docker-proxy` process bound to
-`0.0.0.0:80`, that means something is already the "front door" for this
-droplet — you cannot also bind Smart Lekka's container to port 80.
+If you see `nginx`, `apache2`, or another process bound to `0.0.0.0:80`,
+something is already the "front door" for this droplet — Smart Lekka must
+run on its own internal port instead (this project defaults to **8081**).
 
-**2. Check what's already running in Docker (if your other 2 products are containerized):**
+**2. Check what's already running in Docker:**
 ```bash
 docker ps --format 'table {{.Names}}\t{{.Ports}}'
 ```
-Note the container/volume names and ports in use so you know they won't clash.
 
-**3. Decide how Smart Lekka will be reached.** Two common setups:
-
-- **You have spare subdomains** (e.g. `smartlekka.yourdomain.com`) and the
-  other two products already sit behind a host-level nginx/Caddy reverse
-  proxy — this is the recommended path. Smart Lekka runs on an internal-only
-  port (e.g. `8081`), and you add one more server block to your *existing*
-  reverse proxy that forwards `smartlekka.yourdomain.com` → `127.0.0.1:8081`.
-  Nothing about your other two apps changes.
-- **You just want IP:port access for now** (no domain yet) — Smart Lekka
-  runs on `http://YOUR_DROPLET_IP:8081` directly, no reverse proxy needed.
-  You can add the domain/SSL step later without touching your other apps.
-
-Either way, **do not change the port mapping to `80:80`** on a shared
-droplet. This project already defaults to port **8081** for exactly this
-reason (`APP_PORT` in `.env`) — change it to any other free port if `8081`
-is also taken.
+**3. Decide how Smart Lekka will be reached** — either add a subdomain to
+your existing host reverse proxy pointing at `127.0.0.1:8081` (recommended),
+or access it directly at `http://YOUR_DROPLET_IP:8081` for now. Either way,
+**do not change the port mapping to `80:80`** if anything else already owns
+that port.
 
 ---
 
-## Step 1 — Create the Droplet *(skip if you're adding this to an existing droplet)*
+## Step 1 — Create the Droplet *(skip if adding this to an existing droplet)*
 
 1. Log in to DigitalOcean → **Create → Droplets**
 2. Choose **Ubuntu 22.04 (LTS) x64**
@@ -57,7 +45,7 @@ is also taken.
 
 ---
 
-## Step 2 — Install Docker *(skip if Docker is already installed — check with `docker --version`)*
+## Step 2 — Install Docker *(skip if already installed — check `docker --version`)*
 
 SSH into the droplet:
 ```bash
@@ -87,7 +75,7 @@ scp smart-lekka-deploy-final.zip root@YOUR_DROPLET_IP:/opt/
 ```
 
 On the droplet, unzip it **into its own folder** — this keeps it completely
-separate from your other two apps' files/folders:
+separate from any other apps' files:
 ```bash
 cd /opt
 apt-get install -y unzip
@@ -154,9 +142,9 @@ Expected: `{"status":"ok"}`
 
 Open in browser: `http://YOUR_DROPLET_IP:8081`
 
-**Confirm your other two apps are unaffected:**
+**If this is a shared droplet, confirm your other apps are unaffected:**
 ```bash
-curl -I http://localhost   # or whatever port/domain they normally answer on
+curl -I http://localhost   # or however your other apps normally respond
 docker ps                  # all containers, old and new, should show "Up"
 ```
 
@@ -179,8 +167,7 @@ docker ps                  # all containers, old and new, should show "Up"
 
 ### If this is the only app on the droplet
 Point a domain's **A record** at the droplet IP, stop the compose stack,
-get a cert with the standalone method, then add an SSL server block to
-`deploy/nginx.conf` and rebuild:
+get a cert with the standalone method, then rebuild:
 ```bash
 apt-get install -y certbot
 docker compose stop
@@ -188,44 +175,37 @@ certbot certonly --standalone -d yourdomain.com
 docker compose up -d --build
 ```
 
-### If your other two apps already have a host-level nginx/Caddy managing SSL
-**Don't touch their config or certs.** Just add Smart Lekka as one more site:
-
-1. Make sure Smart Lekka is reachable on its internal port, e.g. `127.0.0.1:8081`
-   (this is already the default — see the pre-flight section above).
-2. Add a **new** server block to your existing reverse proxy (don't edit the
-   blocks for your other two products), for example with host nginx:
-   ```nginx
-   server {
-       listen 80;
-       server_name smartlekka.yourdomain.com;
-       location / {
-           proxy_pass http://127.0.0.1:8081;
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-           proxy_set_header X-Forwarded-Proto $scheme;
-       }
-   }
-   ```
-3. Add an **A record** for `smartlekka.yourdomain.com` pointing at the droplet IP.
-4. Get a cert for just the new subdomain (this does not touch existing certs):
-   ```bash
-   certbot --nginx -d smartlekka.yourdomain.com
-   ```
-5. Reload your host reverse proxy: `nginx -t && systemctl reload nginx`
-
-Your other two products keep running the entire time — none of their
-containers, configs, or certs are touched.
+### If other apps already have a host-level nginx/Caddy managing SSL
+**Don't touch their config or certs.** Add Smart Lekka as one more site,
+pointing at its internal port (`127.0.0.1:8081` by default):
+```nginx
+server {
+    listen 80;
+    server_name smartlekka.yourdomain.com;
+    location / {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+Then add an A record for that subdomain and:
+```bash
+certbot --nginx -d smartlekka.yourdomain.com
+```
+Your other apps keep running the entire time — none of their containers,
+configs, or certs are touched.
 
 ---
 
 ## Useful Commands
 
-> Run these from inside `/opt/smart-lekka` — `docker compose` only ever acts
-> on the containers defined in *this* folder's `docker-compose.yml`
-> (`smart-lekka-db`, `smart-lekka-app`), so it will never touch your other
-> two products' containers even if you run `docker compose down -v` here.
+> Run these from inside the `smart-lekka` project folder — `docker compose`
+> only ever acts on the containers defined in *this* folder's
+> `docker-compose.yml` (`smart-lekka-db`, `smart-lekka-app`), so it will
+> never touch other apps' containers even if you run `docker compose down -v`.
 
 | Task | Command |
 |------|---------|
@@ -246,13 +226,13 @@ containers, configs, or certs are touched.
 3. Run: `docker compose up -d --build`
 
 > **Upgrading an existing installation?** `schema.sql` only runs automatically
-> on a brand-new database. If you're updating a server that's already running
-> (and this update added new indexes), apply them once by hand:
+> on a brand-new database. If this update added new columns/indexes, apply
+> them to an already-running database by hand:
 > ```bash
 > docker compose exec -T db psql -U smartlekka smartlekka < deploy/schema.sql
 > ```
-> `CREATE TABLE IF NOT EXISTS` / `CREATE INDEX IF NOT EXISTS` make this safe
-> to re-run — it will only add what's missing.
+> Every statement uses `IF NOT EXISTS`, so it's safe to re-run — it only adds
+> what's missing.
 
 ---
 

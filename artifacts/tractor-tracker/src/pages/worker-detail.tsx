@@ -4,6 +4,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import {
   useGetWorker, useGetWorkerLogs, useGetWorkerPayments, useCreatePayment,
+  useDeleteWorkLog,
   getGetWorkerPaymentsQueryKey, getGetWorkerQueryKey, getListWorkersQueryKey,
   getGetDashboardSummaryQueryKey,
 } from "@workspace/api-client-react";
@@ -16,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   ArrowLeft, Clock, Wallet, HandCoins, Calendar, MessageCircle,
-  CheckCircle2, Send, History, Banknote, AlertCircle, ChevronDown, ChevronUp,
+  CheckCircle2, Send, History, Banknote, AlertCircle, ChevronDown, ChevronUp, Trash2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -152,6 +153,9 @@ export default function WorkerDetail() {
   const [amount, setAmount] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const [collectingJcbId, setCollectingJcbId] = useState<number | null>(null);
+  const [deletingLogId, setDeletingLogId] = useState<number | null>(null);
+
+  const isSupervisorOrAdmin = (authUser as any)?.role === "supervisor" || (authUser as any)?.role === "admin";
 
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: getGetWorkerQueryKey(workerId) });
@@ -173,6 +177,21 @@ export default function WorkerDetail() {
     },
   });
 
+  const deleteLogMutation = useDeleteWorkLog({
+    mutation: {
+      onSuccess: () => {
+        invalidateAll();
+        setDeletingLogId(null);
+        toast({ title: "Entry deleted successfully" });
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? "Failed to delete entry";
+        toast({ title: msg, variant: "destructive" });
+        setDeletingLogId(null);
+      },
+    },
+  });
+
   const totalPendingFromLogs = (logs ?? []).reduce(
     (s, l) => s + Math.max(0, (l.amount ?? 0) - (l.paidAmount ?? 0)),
     0
@@ -181,7 +200,8 @@ export default function WorkerDetail() {
   const handleOpenPayment = (open: boolean) => {
     setPaymentOpen(open);
     if (open) {
-      const pending = logs ? totalPendingFromLogs : (worker?.pendingAmount ?? 0);
+      // Use net pending (already accounts for advance balance)
+      const pending = Math.max(0, worker?.pendingAmount ?? 0);
       if (pending > 0) setAmount(Math.round(pending).toString());
       // Auto-set collecting JCB: JCB user → themselves, else null (supervisor picks)
       const myId = (authUser as any)?.id ?? null;
@@ -194,6 +214,8 @@ export default function WorkerDetail() {
       setCollectingJcbId(null);
     }
   };
+
+  const advanceBalance = (worker as any)?.advanceBalance ?? 0;
 
   const handleWhatsAppOverall = () => {
     if (!worker) return;
@@ -303,10 +325,16 @@ export default function WorkerDetail() {
                   <DialogTitle>Record Payment — {worker.name}</DialogTitle>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
+                  {advanceBalance > 0 && (
+                    <div className="bg-emerald-50 border border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-800 p-3 rounded-lg text-sm text-emerald-800 dark:text-emerald-300 flex justify-between items-center">
+                      <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 shrink-0" />Advance credit</span>
+                      <strong className="text-base">₹{fmt(advanceBalance)} will auto-apply</strong>
+                    </div>
+                  )}
                   {totalPendingFromLogs > 0 && (
                     <div className="bg-amber-50 border border-amber-200 dark:bg-amber-950/30 dark:border-amber-800 p-3 rounded-lg text-sm text-amber-800 dark:text-amber-300 flex justify-between items-center">
-                      <span>Total Pending (All Sessions)</span>
-                      <strong className="text-base">₹{fmt(totalPendingFromLogs)}</strong>
+                      <span>Net amount to collect</span>
+                      <strong className="text-base">₹{fmt(Math.max(0, worker.pendingAmount))}</strong>
                     </div>
                   )}
                   {jcbUsers.length > 1 && (
@@ -486,6 +514,17 @@ export default function WorkerDetail() {
                         <Send className="w-3 h-3" />
                         Send via WhatsApp
                       </Button>
+                      {isSupervisorOrAdmin && log.paidAmount === 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => setDeletingLogId(log.id)}
+                          title="Delete entry"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
@@ -535,6 +574,38 @@ export default function WorkerDetail() {
           )}
         </CardContent>
       </Card>
+
+      {/* ── Delete Confirmation Dialog ── */}
+      {deletingLogId !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-background rounded-xl shadow-xl border p-5 max-w-sm w-full space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="bg-destructive/10 p-2 rounded-lg shrink-0">
+                <Trash2 className="w-5 h-5 text-destructive" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-base">Delete Entry?</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  This work session will be permanently removed. This cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setDeletingLogId(null)} disabled={deleteLogMutation.isPending}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => deleteLogMutation.mutate({ id: deletingLogId })}
+                disabled={deleteLogMutation.isPending}
+              >
+                {deleteLogMutation.isPending ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Paid Sessions (History) ── */}
       {paidLogs.length > 0 && (

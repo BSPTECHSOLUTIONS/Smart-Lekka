@@ -10,7 +10,7 @@ RUN npm install -g pnpm@9
 
 WORKDIR /app
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* .npmrc* ./
 COPY tsconfig.json tsconfig.base.json ./
 
 COPY lib/ ./lib/
@@ -38,7 +38,7 @@ RUN npm install -g pnpm@9
 
 WORKDIR /app
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml* .npmrc* ./
 COPY tsconfig.json tsconfig.base.json ./
 COPY lib/ ./lib/
 COPY artifacts/api-server/ ./artifacts/api-server/

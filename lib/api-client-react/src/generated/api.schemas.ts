@@ -61,6 +61,7 @@ export interface WorkerSummary {
   totalEarned: number;
   totalPaid: number;
   pendingAmount: number;
+  advanceBalance: number;
 }
 
 export interface CreateWorkerBody {
