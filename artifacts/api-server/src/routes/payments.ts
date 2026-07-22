@@ -1,40 +1,11 @@
 import { Router, type IRouter } from "express";
-import { db, paymentsTable, workersTable, workLogsTable } from "@workspace/db";
-import { and, eq, asc, ne } from "drizzle-orm";
+import { db, paymentsTable, workersTable } from "@workspace/db";
+import { eq, and } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
 import { CreatePaymentBody } from "@workspace/api-zod";
+import { allocateAdvanceFIFO } from "../lib/advance-allocation";
 
 const router: IRouter = Router();
-
-/**
- * Allocate a payment amount across unpaid work logs (FIFO by startTime).
- * Returns the unallocated remainder (overpayment / advance).
- */
-async function allocateFIFO(workerId: number, paymentAmount: number): Promise<number> {
-  const entries = await db
-    .select()
-    .from(workLogsTable)
-    .where(and(eq(workLogsTable.workerId, workerId), ne(workLogsTable.status, "PAID")))
-    .orderBy(asc(workLogsTable.startTime));
-
-  let remaining = paymentAmount;
-
-  for (const entry of entries) {
-    if (remaining <= 0) break;
-    const due = entry.amount - entry.paidAmount;
-    if (due <= 0) continue;
-
-    if (remaining >= due) {
-      await db.update(workLogsTable).set({ paidAmount: entry.amount, status: "PAID" }).where(eq(workLogsTable.id, entry.id));
-      remaining -= due;
-    } else {
-      await db.update(workLogsTable).set({ paidAmount: entry.paidAmount + remaining, status: "PARTIAL" }).where(eq(workLogsTable.id, entry.id));
-      remaining = 0;
-    }
-  }
-
-  return remaining;
-}
 
 router.post("/payments", requireAuth, async (req, res): Promise<void> => {
   const parsed = CreatePaymentBody.safeParse(req.body);
@@ -69,7 +40,7 @@ router.post("/payments", requireAuth, async (req, res): Promise<void> => {
   // Apply existing advance balance + new payment through FIFO
   const existingAdvance = worker.advanceBalance ?? 0;
   const totalToAllocate = existingAdvance + amountPaid;
-  const unallocated = await allocateFIFO(workerId, totalToAllocate);
+  const unallocated = await allocateAdvanceFIFO(workerId, totalToAllocate);
 
   // Store any unallocated remainder as new advance balance
   await db

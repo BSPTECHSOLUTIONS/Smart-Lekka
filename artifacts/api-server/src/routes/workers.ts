@@ -119,6 +119,15 @@ router.get("/workers", requireAuth, async (req, res): Promise<void> => {
     const s = await getWorkerSummaryForJcbs(w.id, jcbIds);
     if (!s) return null;
     const advance = w.advanceBalance ?? 0;
+    // The advance balance is a shared, customer-level credit — it isn't
+    // tied to any specific vehicle's sessions (that's exactly why it's
+    // still sitting unallocated). Subtracting it a second time from an
+    // already-scoped single-vehicle total double-counts the same credit
+    // once per vehicle. It should only reduce the unrestricted/aggregate
+    // view (jcbIds === null), which is what a supervisor or admin sees.
+    const pendingAmount = jcbIds == null
+      ? Math.max(0, s.totalEarned - s.totalPaid - advance)
+      : Math.max(0, s.totalEarned - s.totalPaid);
     return {
       id: w.id,
       name: w.name,
@@ -126,7 +135,7 @@ router.get("/workers", requireAuth, async (req, res): Promise<void> => {
       createdAt: w.createdAt.toISOString(),
       totalEarned: s.totalEarned,
       totalPaid: s.totalPaid,
-      pendingAmount: Math.max(0, s.totalEarned - s.totalPaid - advance),
+      pendingAmount,
       advanceBalance: advance,
     };
   }));
@@ -205,6 +214,12 @@ router.get("/workers/:id", requireAuth, async (req, res): Promise<void> => {
   }
 
   const advance = worker.advanceBalance ?? 0;
+  // Same reasoning as the list endpoint: the advance is a shared,
+  // customer-level credit, not owned by whichever single vehicle is
+  // viewing it, so it should only reduce the unrestricted/aggregate total.
+  const pendingAmount = jcbIds == null
+    ? Math.max(0, s.totalEarned - s.totalPaid - advance)
+    : Math.max(0, s.totalEarned - s.totalPaid);
   res.json(GetWorkerResponse.parse({
     id: worker.id,
     name: worker.name,
@@ -212,7 +227,7 @@ router.get("/workers/:id", requireAuth, async (req, res): Promise<void> => {
     createdAt: worker.createdAt.toISOString(),
     totalEarned: s.totalEarned,
     totalPaid: s.totalPaid,
-    pendingAmount: Math.max(0, s.totalEarned - s.totalPaid - advance),
+    pendingAmount,
     advanceBalance: advance,
   }));
 });

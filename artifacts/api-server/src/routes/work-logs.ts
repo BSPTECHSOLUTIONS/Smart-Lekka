@@ -3,6 +3,7 @@ import { db, workLogsTable, workersTable } from "@workspace/db";
 import { and, eq } from "drizzle-orm";
 import { requireAuth } from "../middlewares/auth";
 import { CreateWorkLogBody, GetActiveWorkLogResponse } from "@workspace/api-zod";
+import { reallocateExistingAdvance } from "../lib/advance-allocation";
 
 const router: IRouter = Router();
 
@@ -59,19 +60,29 @@ router.post("/work-logs", requireAuth, async (req, res): Promise<void> => {
     status: "PENDING",
   }).returning();
 
+  // If this customer already has advance credit sitting unused from an
+  // earlier overpayment, apply it to this new session right away instead
+  // of leaving it stale until the next payment. Without this, a vehicle's
+  // own "pending" total goes wrong the moment a new session is added after
+  // the credit was earned by a *different* vehicle's work.
+  await reallocateExistingAdvance(workerId);
+
+  const [refreshedLog] = await db.select().from(workLogsTable).where(eq(workLogsTable.id, log.id));
+  const finalLog = refreshedLog ?? log;
+
   res.status(201).json({
-    id: log.id,
-    workerId: log.workerId,
-    jcbUserId: log.jcbUserId,
+    id: finalLog.id,
+    workerId: finalLog.workerId,
+    jcbUserId: finalLog.jcbUserId,
     workerName: worker.name ?? null,
-    fieldName: log.fieldName,
-    startTime: log.startTime.toISOString(),
-    endTime: log.endTime.toISOString(),
-    totalHours: log.totalHours,
-    amount: log.amount,
-    paidAmount: log.paidAmount,
-    status: log.status,
-    createdAt: log.createdAt.toISOString(),
+    fieldName: finalLog.fieldName,
+    startTime: finalLog.startTime.toISOString(),
+    endTime: finalLog.endTime.toISOString(),
+    totalHours: finalLog.totalHours,
+    amount: finalLog.amount,
+    paidAmount: finalLog.paidAmount,
+    status: finalLog.status,
+    createdAt: finalLog.createdAt.toISOString(),
   });
 });
 
